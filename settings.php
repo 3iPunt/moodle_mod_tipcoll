@@ -31,4 +31,39 @@ if ($ADMIN->fulltree) {
         get_string('generalheading', 'mod_tipcoll'),
         get_string('generalheadingdesc', 'mod_tipcoll')));
 
+    $numactivities = new admin_setting_configtext(
+        'tipcoll/numactivities',
+        new lang_string('numactivities', 'mod_tipcoll'),
+        new lang_string('numactivities_help', 'mod_tipcoll'),
+        4, PARAM_INT
+    );
+
+    $settings->add($numactivities);
+
+    $settings->add(new admin_setting_heading(
+        'tipcoll/activities',
+        get_string('activitiesheading', 'mod_tipcoll'),
+        get_string('activitiesheading_help', 'mod_tipcoll')));
+
+    global $DB, $CFG;
+    $choices = ['not' => get_string('notselected', 'mod_tipcoll')];
+    foreach (\mod_tipcoll\factory\module::MODULES_ACTIVES as $item) {
+        // Exclude modules if the code doesn't exist.
+        if (file_exists("$CFG->dirroot/mod/$item/lib.php")) {
+            $choices[$item] = $item;
+        }
+    }
+
+    $max = 10;
+    $defaults = ['not', 'forum', 'url', 'url', 'url',
+        'not', 'not', 'not', 'not', 'not', 'not', 'not'];
+    for ($i = 1; $i <= $max; $i++) {
+        $settings->add(new admin_setting_configselect(
+            'tipcoll/activity_type_' . $i,
+            new lang_string('activity_type', 'mod_tipcoll') . ' ' . $i,
+            '', $defaults[$i], $choices
+        ));
+    }
+
+
 }

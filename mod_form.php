@@ -86,6 +86,25 @@ class mod_tipcoll_mod_form extends moodleform_mod {
         $mform->setDefault('feedback_deadline',
             null);
 
+        // Adding the FEEDBACK config.
+        $mform->addElement('header', 'activities', get_string('activitiesheading', 'mod_tipcoll'));
+        $mform->setExpanded('activities');
+
+        $numactivities = (int)get_config('tipcoll', 'numactivities');
+
+        for ($i = 1; $i <= $numactivities; $i++) {
+
+            $modname = get_config('tipcoll', 'activity_type_' . $i);
+            $modnamestr = get_string('pluginname', $modname);
+            $mform->addElement('text', 'activity_name_' . $i,
+                get_string('name') . ' - ' . $modnamestr, array('size' => '64'));
+            $mform->addRule('activity_name_' . $i,
+                null, 'required', null, 'client');
+            $mform->addRule('activity_name_' . $i, get_string(
+                'maximumchars', '', 255), 'maxlength', 255, 'client');
+            $mform->setType('activity_name_' . $i, PARAM_RAW);
+        }
+
         // Add standard elements.
         $this->standard_coursemodule_elements();
 

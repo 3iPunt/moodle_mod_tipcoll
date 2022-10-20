@@ -22,6 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_tipcoll\factory\module;
+
 /**
  * Return if the plugin supports $feature.
  *
@@ -69,8 +71,33 @@ function tipcoll_supports(string $feature) {
  */
 function tipcoll_add_instance(object $moduleinstance, $mform = null): int {
     global $DB;
+
+    // Create and Save activity data.
+    $numactivities = (int)get_config('tipcoll', 'numactivities');
+    $activitiesdata = [];
+    $activities = [];
+    for ($i = 1; $i <= $numactivities; $i++) {
+        $modname = get_config('tipcoll', 'activity_type_' . $i);
+        $factname = 'mod_tipcoll\factory\module_' . $modname;
+        $var = 'activity_name_' . $i;
+        $name = $moduleinstance->$var;
+        /** @var module $factory */
+        $factory = new $factname($moduleinstance->section, $name);
+        $instance = $factory->create($moduleinstance->course);
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $modname;
+        $activity['name'] = $moduleinstance->$var;
+        $activity['intro'] = '';
+        $activitiesdata[$i] = $activity;
+        $activities[] = $instance->cmid;
+    }
+
     $moduleinstance->timecreated = time();
+    $moduleinstance->cmids = implode(',', $activities);
+    $moduleinstance->cmdata = json_encode($activitiesdata);
     $moduleinstance->id = $DB->insert_record('tipcoll', $moduleinstance);
+
     return $moduleinstance->id;
 
 }
