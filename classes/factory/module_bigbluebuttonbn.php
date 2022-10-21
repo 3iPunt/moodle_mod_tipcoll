@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class module_url
+ * Class module_bigbluebuttonbn
  *
  * @package     mod_tipcoll
  * @copyright   2021 Tresipunt
@@ -26,32 +26,29 @@ namespace mod_tipcoll\factory;
 
 use coding_exception;
 use dml_exception;
+use mod_bigbluebuttonbn_generator;
 use mod_tipcoll\tipcoll;
-use mod_url_generator;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
 /**
- * Class module_url
+ * Class module_bigbluebuttonbn
  *
  * @package     mod_tipcoll
  * @copyright   2021 Tresipunt
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class module_url extends module {
+class module_bigbluebuttonbn extends module {
 
     /** @var string Mod Name */
-    protected $modname = 'url';
+    protected $modname = 'bigbluebuttonbn';
 
     /** @var string Mod Name String */
     protected $modnamestr;
 
-    /** @var mod_url_generator Generator */
+    /** @var mod_bigbluebuttonbn_generator Generator */
     protected $generator;
-
-    /** @var string Link */
-    protected $link;
 
     /**
      * constructor.
@@ -59,8 +56,8 @@ class module_url extends module {
      * @throws coding_exception
      */
     public function __construct() {
-        parent::__construct('mod_url');
-        $this->modnamestr = get_string('pluginname', 'url');
+        parent::__construct('mod_bigbluebuttonbn');
+        $this->modnamestr = get_string('pluginname', 'bigbluebuttonbn');
     }
 
     /**
@@ -73,14 +70,9 @@ class module_url extends module {
      */
     public function create(int $i, $moduleinstance): array {
         parent::set($moduleinstance, $i);
-
-        $varlink = 'activity_link_' . $i;
-        $link = isset($moduleinstance->$varlink) ? $moduleinstance->$varlink : '';
-
         $record = [
             'course' => $this->course,
             'name' => $this->title,
-            'externalurl' => $link,
             'intro' => !empty($this->intro) ? $this->intro : ' ',
             'showdescription' => !empty($this->intro) ? 1 : 0,
             'introformat' => FORMAT_HTML,
@@ -91,7 +83,6 @@ class module_url extends module {
             'visible' => true,
             'showdescription' => !empty($this->intro)
         ];
-
         $instance = $this->generator->create_instance($record, $options);
 
         $activity = [];
@@ -99,7 +90,6 @@ class module_url extends module {
         $activity['type'] = $this->modname;
         $activity['name'] = $this->title;
         $activity['intro'] = $this->intro;
-        $activity['url'] = $link;
         return $activity;
     }
 
@@ -110,21 +100,16 @@ class module_url extends module {
      * @param object $moduleinstance
      * @param int $cmid
      * @return array
-     * @throws dml_exception
      * @throws moodle_exception
      */
     public function update(int $i, object $moduleinstance, int $cmid): array {
         global $DB;
         parent::set($moduleinstance, $i);
 
-        $varlink = 'activity_link_' . $i;
-        $link = isset($moduleinstance->$varlink) ? $moduleinstance->$varlink : '';
-
         $tipcoll = new tipcoll($cmid);
         $instance = $tipcoll->get_activity($i);
 
         $instance->name = $this->title;
-        $instance->externalurl = $link;
         $instance->intro = !empty($this->intro) ? $this->intro : ' ';
 
         $DB->update_record($this->modname, $instance);
@@ -134,7 +119,6 @@ class module_url extends module {
         $activity['type'] = $this->modname;
         $activity['name'] = $this->title;
         $activity['intro'] = $this->intro;
-        $activity['url'] = $link;
         return $activity;
     }
 
@@ -144,9 +128,9 @@ class module_url extends module {
      * @param MoodleQuickForm $mform
      * @param int $i
      * @param stdClass|null $cm
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public function add_mform_item(MoodleQuickForm &$mform, int $i, stdClass $cm = null) {
         if (!is_null($cm)) {
@@ -165,16 +149,6 @@ class module_url extends module {
         $mform->setType($activityname, PARAM_RAW);
         if (isset($instance)) {
             $mform->setDefault($activityname, $instance->name);
-        }
-
-        // Link.
-        $activitylink = 'activity_link_' . $i;
-        $mform->addElement('url', $activitylink,
-            $this->modnamestr . ' - ' . get_string('url'), array('size' => '64'));
-        $mform->addRule($activitylink, null, 'required', null, 'client');
-        $mform->setType($activitylink, PARAM_RAW);
-        if (isset($instance)) {
-            $mform->setDefault($activitylink, $instance->externalurl);
         }
     }
 

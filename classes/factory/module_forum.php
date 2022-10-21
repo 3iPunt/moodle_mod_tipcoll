@@ -24,7 +24,6 @@
 
 namespace mod_tipcoll\factory;
 
-use cm_info;
 use coding_exception;
 use dml_exception;
 use mod_forum_generator;

@@ -26,6 +26,7 @@ namespace mod_tipcoll\factory;
 
 use cm_info;
 use coding_exception;
+use core_courseformat\external\update_course;
 use dml_exception;
 use moodle_exception;
 use MoodleQuickForm;
@@ -46,7 +47,7 @@ require_once($CFG->dirroot . '/lib/phpunit/classes/util.php');
  */
 abstract class module {
 
-    const MODULES_ACTIVES = ['forum', 'url'];
+    const MODULES_ACTIVES = ['forum', 'url', 'assign', 'bigbluebuttonbn'];
 
     /** @var string Mod Name */
     protected $modname = '';
@@ -171,6 +172,13 @@ abstract class module {
             $activity = $factory->update($i, $moduleinstance, $moduleinstance->coursemodule);
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
+        }
+
+        if (isset($activities[0])) {
+            $cmmoveids = [];
+            $cmmoveids[] = $moduleinstance->coursemodule;
+            update_course::execute(
+                'cm_move', $moduleinstance->course, $cmmoveids, $moduleinstance->section, $activities[0]);
         }
 
         $moduleinstance->timemodified = time();
