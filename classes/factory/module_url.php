@@ -68,10 +68,11 @@ class module_url extends module {
      *
      * @param object $moduleinstance
      * @param int $i
+     * @param int $section
      * @return array
      * @throws dml_exception
      */
-    public function create(object $moduleinstance, int $i): array {
+    public function create(object $moduleinstance, int $i, int $section): array {
         parent::set($moduleinstance, $i);
 
         $varlink = 'activity_link_' . $i;
@@ -87,7 +88,7 @@ class module_url extends module {
             'files' => file_get_unused_draft_itemid(),
         ];
         $options = [
-            'section' => $this->section,
+            'section' => $section,
             'visible' => true,
             'showdescription' => 0
         ];

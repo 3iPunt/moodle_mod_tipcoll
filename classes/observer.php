@@ -58,7 +58,7 @@ class mod_tipcoll_observer {
             $cmmoveids = [];
             $cmmoveids[] = $cm->id;
             \core_courseformat\external\update_course::execute(
-                'cm_move', $course->id, $cmmoveids, $cminfo->section, $feedback->cmid);
+                'cm_move', $course->id, $cmmoveids, $feedback->section, $feedback->cmid);
         }
 
         return true;

@@ -101,6 +101,7 @@ class tipcoll {
             list($course, $cm) = get_course_and_cm_from_cmid($feedbackcmid);
             $instance = $DB->get_record('feedback', ['id' => $cm->instance], '*', MUST_EXIST);
             $instance->cmid = $feedbackcmid;
+            $instance->section = $cm->section;
             return $instance;
         } else {
             debugging('Feedback NOT FOUND');

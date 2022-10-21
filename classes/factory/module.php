@@ -115,7 +115,6 @@ abstract class module {
 
         $this->courseid = $moduleinstance->course;
         $this->course = get_course($this->courseid);
-        $this->section = $moduleinstance->section;
         $this->title = $title;
         $this->intro = $intro;
     }
@@ -134,9 +133,18 @@ abstract class module {
         $activitiesdata = [];
         $activities = [];
 
+        $section = $moduleinstance->section;
+
+        // Create Section.
+        if (get_config('tipcoll', 'behavior') === 'section') {
+            $sectionnew = section::create_section($moduleinstance);
+            $section = $sectionnew->section;
+        }
+
         // Create Feedback.
         $factfeedback = new module_feedback();
-        $feedinstance = $factfeedback->create_questionnaire($moduleinstance, 'Encuesta', 'sfasdfsaf ñljsfdsf');
+        $feedinstance = $factfeedback->create_questionnaire(
+            $moduleinstance, 'Encuesta', 'sfasdfsaf ñljsfdsf', $section);
 
         // Create Activities.
         for ($i = 1; $i <= $numactivities; $i++) {
@@ -144,7 +152,7 @@ abstract class module {
             $factname = 'mod_tipcoll\factory\module_' . $modname;
             /** @var module $factory */
             $factory = new $factname();
-            $activity = $factory->create($moduleinstance, $i);
+            $activity = $factory->create($moduleinstance, $i, $section);
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
         }
@@ -208,16 +216,17 @@ abstract class module {
     }
 
 
-
     /**
      * Create.
      *
      * @param object $moduleinstance
      * @param int $i
+     * @param int $section
      * @return array
-     * @throws dml_exception|coding_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public function create(object $moduleinstance, int $i): array {
+    public function create(object $moduleinstance, int $i, int $section): array {
         self::set($moduleinstance, $i);
         $record = [
             'course' => $this->course,
@@ -228,7 +237,7 @@ abstract class module {
             'files' => file_get_unused_draft_itemid(),
         ];
         $options = [
-            'section' => $this->section,
+            'section' => $section,
             'visible' => true,
             'showdescription' => 0
         ];

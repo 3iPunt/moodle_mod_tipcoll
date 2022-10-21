@@ -66,9 +66,10 @@ class module_feedback extends module {
      * @param object $moduleinstance
      * @param string $title
      * @param string $intro
+     * @param int $section
      * @return stdClass
      */
-    public function create_questionnaire(object $moduleinstance, string $title, string $intro): stdClass {
+    public function create_questionnaire(object $moduleinstance, string $title, string $intro, int $section): stdClass {
         $record = [
             'course' => $moduleinstance->course,
             'name' => $title,
@@ -78,7 +79,7 @@ class module_feedback extends module {
             'files' => file_get_unused_draft_itemid(),
         ];
         $options = [
-            'section' => $moduleinstance->section,
+            'section' => $section,
             'visible' => true,
             'showdescription' => 0
         ];

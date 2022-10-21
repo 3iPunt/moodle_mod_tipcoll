@@ -46,6 +46,6 @@ $string['activitiesheading'] = 'Actividades';
 $string['activitiesheading_help'] = 'Selecciona el tipo de cada actividad colaborativa';
 $string['activity_type'] = 'Selecciona el tipo de la Actividad';
 $string['behavior'] = 'Comportamiento';
-$string['behavior_help'] = 'Puede seleccionar etiqueta, para que las actividades se organicen después de una etiqueta. Puede seleccionar sección, para que todas las actividades se agrupen en una misma sección.';
+$string['behavior_help'] = 'Puede seleccionar etiqueta, para que las actividades se organicen después de una etiqueta. Puede seleccionar sección, para que todas las actividades se agrupen en una misma nueva sección.';
 $string['label'] = 'Etiqueta';
 $string['section'] = 'Sección';
