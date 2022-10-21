@@ -28,6 +28,7 @@ use cm_info;
 use coding_exception;
 use core_courseformat\external\update_course;
 use dml_exception;
+use mod_tipcoll\tipcoll;
 use moodle_exception;
 use MoodleQuickForm;
 use phpunit_util;
@@ -133,19 +134,26 @@ abstract class module {
         $activitiesdata = [];
         $activities = [];
 
+        // Create Feedback.
+        $factfeedback = new module_feedback();
+        $feedinstance = $factfeedback->create_questionnaire($moduleinstance, 'Encuesta', 'sfasdfsaf ñljsfdsf');
+
+        // Create Activities.
         for ($i = 1; $i <= $numactivities; $i++) {
             $modname = get_config('tipcoll', 'activity_type_' . $i);
             $factname = 'mod_tipcoll\factory\module_' . $modname;
             /** @var module $factory */
             $factory = new $factname();
-            $activity = $factory->create($i, $moduleinstance);
+            $activity = $factory->create($moduleinstance, $i);
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
         }
 
         $moduleinstance->timecreated = time();
         $moduleinstance->cmids = implode(',', $activities);
+        $moduleinstance->feedbackid = $feedinstance->cmid;
         $moduleinstance->cmdata = json_encode($activitiesdata);
+        $moduleinstance->showdescription = 1;
         return $DB->insert_record('tipcoll', $moduleinstance);
     }
 
@@ -169,7 +177,7 @@ abstract class module {
             $factname = 'mod_tipcoll\factory\module_' . $modname;
             /** @var module $factory */
             $factory = new $factname();
-            $activity = $factory->update($i, $moduleinstance, $moduleinstance->coursemodule);
+            $activity = $factory->update($moduleinstance, $moduleinstance->coursemodule, $i);
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
         }
@@ -177,8 +185,18 @@ abstract class module {
         if (isset($activities[0])) {
             $cmmoveids = [];
             $cmmoveids[] = $moduleinstance->coursemodule;
+
+            $coursesection = $DB->get_record('course_sections',
+                [
+                    'course' => $moduleinstance->course,
+                    'section' => $moduleinstance->section
+                ], 'id', MUST_EXIST);
+
+            $tipcoll = new tipcoll($moduleinstance->coursemodule);
+            $feedback = $tipcoll->get_feedback();
+
             update_course::execute(
-                'cm_move', $moduleinstance->course, $cmmoveids, $moduleinstance->section, $activities[0]);
+                'cm_move', $moduleinstance->course, $cmmoveids, $coursesection->id, $feedback->cmid);
         }
 
         $moduleinstance->timemodified = time();
@@ -189,24 +207,69 @@ abstract class module {
         return true;
     }
 
+
+
     /**
      * Create.
      *
-     * @param int $i
      * @param object $moduleinstance
+     * @param int $i
      * @return array
+     * @throws dml_exception|coding_exception
      */
-    abstract public function create(int $i, object $moduleinstance): array;
+    public function create(object $moduleinstance, int $i): array {
+        self::set($moduleinstance, $i);
+        $record = [
+            'course' => $this->course,
+            'name' => $this->title,
+            'intro' => !empty($this->intro) ? $this->intro : ' ',
+            'showdescription' => !empty($this->intro) ? 1 : 0,
+            'introformat' => FORMAT_HTML,
+            'files' => file_get_unused_draft_itemid(),
+        ];
+        $options = [
+            'section' => $this->section,
+            'visible' => true,
+            'showdescription' => 0
+        ];
+        $instance = $this->generator->create_instance($record, $options);
+
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $this->modname;
+        $activity['name'] = $this->title;
+        $activity['intro'] = $this->intro;
+        return $activity;
+    }
 
     /**
      * Update.
      *
-     * @param int $i
      * @param object $moduleinstance
      * @param int $cmid
+     * @param int $i
      * @return array
+     * @throws moodle_exception
      */
-    abstract public function update(int $i, object $moduleinstance, int $cmid): array;
+    public function update(object $moduleinstance, int $cmid, int $i): array {
+        global $DB;
+        self::set($moduleinstance, $i);
+
+        $tipcoll = new tipcoll($cmid);
+        $instance = $tipcoll->get_activity($i);
+
+        $instance->name = $this->title;
+        $instance->intro = !empty($this->intro) ? $this->intro : ' ';
+
+        $DB->update_record($this->modname, $instance);
+
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $this->modname;
+        $activity['name'] = $this->title;
+        $activity['intro'] = $this->intro;
+        return $activity;
+    }
 
     /**
      * Add mForm.
@@ -225,12 +288,33 @@ abstract class module {
     }
 
     /**
-     * Create.
+     * Add mForm Item.
      *
      * @param MoodleQuickForm $mform
      * @param int $i
      * @param stdClass|null $cm
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
-    abstract public function add_mform_item(MoodleQuickForm &$mform, int $i, stdClass $cm = null);
+    public function add_mform_item(MoodleQuickForm &$mform, int $i, stdClass $cm = null) {
+        if (!is_null($cm)) {
+            $tipcoll = new tipcoll($cm->id);
+            $instance = $tipcoll->get_activity($i);
+        } else {
+            $instance = null;
+        }
+        // Name.
+        $activityname = 'activity_name_' . $i;
+        $mform->addElement('text', $activityname,
+            $this->modnamestr . ' - ' . get_string('name'), array('size' => '64'));
+        $mform->addRule($activityname, null, 'required', null, 'client');
+        $mform->addRule($activityname, get_string(
+            'maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->setType($activityname, PARAM_RAW);
+        if (isset($instance)) {
+            $mform->setDefault($activityname, $instance->name);
+        }
+    }
 
 }

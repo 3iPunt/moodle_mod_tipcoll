@@ -86,4 +86,26 @@ class tipcoll {
         }
     }
 
+    /**
+     * Get feedback
+     *
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_feedback() {
+        global $DB;
+        $instanccoll = $DB->get_record('tipcoll', ['id' => $this->cm->instance], '*', MUST_EXIST);
+        if (isset($instanccoll->feedbackid)) {
+            $feedbackcmid = $instanccoll->feedbackid;
+            list($course, $cm) = get_course_and_cm_from_cmid($feedbackcmid);
+            $instance = $DB->get_record('feedback', ['id' => $cm->instance], '*', MUST_EXIST);
+            $instance->cmid = $feedbackcmid;
+            return $instance;
+        } else {
+            debugging('Feedback NOT FOUND');
+            return null;
+        }
+    }
+
 }

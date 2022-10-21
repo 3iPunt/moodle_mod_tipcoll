@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class module_forum
+ * Class module_feedback
  *
  * @package     mod_tipcoll
  * @copyright   2021 Tresipunt
@@ -26,32 +26,29 @@ namespace mod_tipcoll\factory;
 
 use coding_exception;
 use dml_exception;
-use mod_forum_generator;
+use mod_feedback_generator;
 use mod_tipcoll\tipcoll;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
 /**
- * Class module_forum
+ * Class module_feedback
  *
  * @package     mod_tipcoll
  * @copyright   2021 Tresipunt
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class module_forum extends module {
+class module_feedback extends module {
 
     /** @var string Mod Name */
-    protected $modname = 'forum';
+    protected $modname = 'feedback';
 
     /** @var string Mod Name String */
     protected $modnamestr;
 
-    /** @var mod_forum_generator Generator */
+    /** @var mod_feedback_generator Generator */
     protected $generator;
-
-    /** @var string Link */
-    protected $link;
 
     /**
      * constructor.
@@ -59,8 +56,33 @@ class module_forum extends module {
      * @throws coding_exception
      */
     public function __construct() {
-        parent::__construct('mod_forum');
-        $this->modnamestr = get_string('pluginname', 'forum');
+        parent::__construct('mod_feedback');
+        $this->modnamestr = get_string('pluginname', 'feedback');
+    }
+
+    /**
+     * Create questionnaire.
+     *
+     * @param object $moduleinstance
+     * @param string $title
+     * @param string $intro
+     * @return stdClass
+     */
+    public function create_questionnaire(object $moduleinstance, string $title, string $intro): stdClass {
+        $record = [
+            'course' => $moduleinstance->course,
+            'name' => $title,
+            'intro' => !empty($intro) ? $intro : ' ',
+            'showdescription' => !empty($intro) ? 1 : 0,
+            'introformat' => FORMAT_HTML,
+            'files' => file_get_unused_draft_itemid(),
+        ];
+        $options = [
+            'section' => $moduleinstance->section,
+            'visible' => true,
+            'showdescription' => 0
+        ];
+        return $this->generator->create_instance($record, $options);
     }
 
 }

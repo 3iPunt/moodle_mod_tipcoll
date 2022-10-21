@@ -66,12 +66,12 @@ class module_url extends module {
     /**
      * Create.
      *
+     * @param object $moduleinstance
      * @param int $i
-     * @param $moduleinstance
      * @return array
      * @throws dml_exception
      */
-    public function create(int $i, $moduleinstance): array {
+    public function create(object $moduleinstance, int $i): array {
         parent::set($moduleinstance, $i);
 
         $varlink = 'activity_link_' . $i;
@@ -89,7 +89,7 @@ class module_url extends module {
         $options = [
             'section' => $this->section,
             'visible' => true,
-            'showdescription' => !empty($this->intro)
+            'showdescription' => 0
         ];
 
         $instance = $this->generator->create_instance($record, $options);
@@ -113,7 +113,7 @@ class module_url extends module {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function update(int $i, object $moduleinstance, int $cmid): array {
+    public function update(object $moduleinstance, int $cmid, int $i): array {
         global $DB;
         parent::set($moduleinstance, $i);
 
