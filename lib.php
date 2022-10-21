@@ -23,6 +23,7 @@
  */
 
 use mod_tipcoll\factory\module;
+use mod_tipcoll\output\courseview_component;
 
 /**
  * Return if the plugin supports $feature.
@@ -40,6 +41,7 @@ function tipcoll_supports(string $feature) {
         case FEATURE_BACKUP_MOODLE2:
         case FEATURE_SHOW_DESCRIPTION:
         case FEATURE_MOD_INTRO:
+        case FEATURE_NO_VIEW_LINK:
             return true;
         case FEATURE_PLAGIARISM:
         case FEATURE_COMPLETION_TRACKS_VIEWS:
@@ -51,6 +53,7 @@ function tipcoll_supports(string $feature) {
         case FEATURE_GRADE_OUTCOMES:
         case FEATURE_CONTROLS_GRADE_VISIBILITY:
         case FEATURE_ADVANCED_GRADING:
+        case FEATURE_MODEDIT_DEFAULT_COMPLETION:
             return false;
         default:
             return null;
@@ -146,5 +149,35 @@ function tipcoll_comment_permissions(stdClass $commentparam): array {
  */
 function tipcoll_comment_validate(stdClass $commentparam): bool {
     return true;
+}
+
+/**
+ * Given a course_module object, this function returns any
+ * "extra" information that may be needed when printing
+ * this activity in a course listing.
+ * See get_array_of_activities() in course/lib.php
+ *
+ * @param object $coursemodule
+ * @return cached_cm_info|null
+ * @throws coding_exception
+ * @throws moodle_exception
+ */
+function tipcoll_get_coursemodule_info(object $coursemodule): cached_cm_info {
+    global $PAGE;
+    $output = $PAGE->get_renderer('mod_tipcoll');
+    $page = new courseview_component($coursemodule->id);
+    $content = $output->render($page);
+    $info = new cached_cm_info();
+    $info->content = $content;
+    return $info;
+}
+
+/**
+ * Sets the special label display on course page.
+ *
+ * @param cm_info $cm Course-module object
+ */
+function tipcoll_cm_info_view(cm_info $cm) {
+    $cm->set_custom_cmlist_item(true);
 }
 

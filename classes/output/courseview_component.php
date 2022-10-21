@@ -15,36 +15,58 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class renderer
+ * courseview_component
  *
  * @package     mod_tipcoll
  * @copyright   2022 Tresipunt - Antonio Manzano <contacte@tresipunt.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_tipcoll\output;
 
+use cm_info;
 use moodle_exception;
-use plugin_renderer_base;
+use renderable;
+use renderer_base;
+use stdClass;
+use templatable;
 
 /**
- * Class renderer
+ * courseview_component renderable class.
  *
  * @package     mod_tipcoll
  * @copyright   2022 Tresipunt - Antonio Manzano <contacte@tresipunt.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer extends plugin_renderer_base {
+class courseview_component implements renderable, templatable {
+
+    /** @var stdClass Course Module */
+    protected $cm;
+
+    /** @var stdClass Instance */
+    protected $instance;
 
     /**
-     * Defer to template.
+     * view_page constructor.
      *
-     * @param courseview_component $componet
-     * @return bool|string
+     * @param int $cmid
      * @throws moodle_exception
      */
-    public function render_courseview_component(courseview_component $componet) {
-        $data = $componet->export_for_template($this);
-        return parent::render_from_template('mod_tipcoll/courseview_component', $data);
+    public function __construct(int $cmid) {
+        global $DB;
+        $this->cm = $DB->get_record('course_modules', array( 'id' => $cmid ));
+        $this->instance = $DB->get_record('tipcoll', array( 'id' => $this->cm->instance ));
     }
 
+    /**
+     * Export for Template.
+     *
+     * @param renderer_base $output
+     * @return stdClass
+     */
+    public function export_for_template(renderer_base $output): stdClass {
+        $data = new stdClass();
+        $data->name = $this->instance->name;
+        return $data;
+    }
 }
