@@ -46,3 +46,7 @@ $string['activitiesheading'] = 'Activities';
 $string['activitiesheading_help'] = 'Select the type of each collaborative activity';
 $string['activity_type'] = 'Select the type of Activity';
 $string['notselected'] = 'Not selected';
+$string['behavior'] = 'Behavior';
+$string['behavior_help'] = 'You can select a label, so that the activities are organized after a label. You can select section, so that all the activities are grouped in the same section.';
+$string['label'] = 'Label';
+$string['section'] = 'Section';

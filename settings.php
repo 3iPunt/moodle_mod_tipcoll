@@ -31,6 +31,20 @@ if ($ADMIN->fulltree) {
         get_string('generalheading', 'mod_tipcoll'),
         get_string('generalheadingdesc', 'mod_tipcoll')));
 
+    $choicesbehavior = [
+        'label' => get_string('label', 'mod_tipcoll'),
+        'section' => get_string('section', 'mod_tipcoll')
+    ];
+
+    $behavior = new admin_setting_configselect(
+        'tipcoll/behavior',
+        new lang_string('behavior', 'mod_tipcoll'),
+        new lang_string('behavior_help', 'mod_tipcoll'),
+        'label', $choicesbehavior
+    );
+
+    $settings->add($behavior);
+
     $numactivities = new admin_setting_configtext(
         'tipcoll/numactivities',
         new lang_string('numactivities', 'mod_tipcoll'),

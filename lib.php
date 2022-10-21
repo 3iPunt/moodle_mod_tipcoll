@@ -76,6 +76,7 @@ function tipcoll_add_instance(object $moduleinstance, $mform = null): int {
     $numactivities = (int)get_config('tipcoll', 'numactivities');
     $activitiesdata = [];
     $activities = [];
+
     for ($i = 1; $i <= $numactivities; $i++) {
         $modname = get_config('tipcoll', 'activity_type_' . $i);
         $factname = 'mod_tipcoll\factory\module_' . $modname;
@@ -99,7 +100,6 @@ function tipcoll_add_instance(object $moduleinstance, $mform = null): int {
     $moduleinstance->id = $DB->insert_record('tipcoll', $moduleinstance);
 
     return $moduleinstance->id;
-
 }
 
 /**
