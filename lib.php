@@ -70,36 +70,7 @@ function tipcoll_supports(string $feature) {
  * @throws dml_exception
  */
 function tipcoll_add_instance(object $moduleinstance, $mform = null): int {
-    global $DB;
-
-    // Create and Save activity data.
-    $numactivities = (int)get_config('tipcoll', 'numactivities');
-    $activitiesdata = [];
-    $activities = [];
-
-    for ($i = 1; $i <= $numactivities; $i++) {
-        $modname = get_config('tipcoll', 'activity_type_' . $i);
-        $factname = 'mod_tipcoll\factory\module_' . $modname;
-        $var = 'activity_name_' . $i;
-        $name = $moduleinstance->$var;
-        /** @var module $factory */
-        $factory = new $factname($moduleinstance->section, $name);
-        $instance = $factory->create($moduleinstance->course);
-        $activity = [];
-        $activity['id'] = $instance->cmid;
-        $activity['type'] = $modname;
-        $activity['name'] = $moduleinstance->$var;
-        $activity['intro'] = '';
-        $activitiesdata[$i] = $activity;
-        $activities[] = $instance->cmid;
-    }
-
-    $moduleinstance->timecreated = time();
-    $moduleinstance->cmids = implode(',', $activities);
-    $moduleinstance->cmdata = json_encode($activitiesdata);
-    $moduleinstance->id = $DB->insert_record('tipcoll', $moduleinstance);
-
-    return $moduleinstance->id;
+    return module::add_instance($moduleinstance);
 }
 
 /**
@@ -114,11 +85,7 @@ function tipcoll_add_instance(object $moduleinstance, $mform = null): int {
  * @throws dml_exception
  */
 function tipcoll_update_instance(object $moduleinstance, $mform = null): bool {
-    global $DB;
-    $moduleinstance->timemodified = time();
-    $moduleinstance->id = $moduleinstance->instance;
-    $DB->update_record('tipcoll', $moduleinstance);
-    return true;
+    return module::update_instance($moduleinstance);
 }
 
 /**

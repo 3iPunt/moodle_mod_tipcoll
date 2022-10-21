@@ -93,16 +93,7 @@ class mod_tipcoll_mod_form extends moodleform_mod {
         $numactivities = (int)get_config('tipcoll', 'numactivities');
 
         for ($i = 1; $i <= $numactivities; $i++) {
-
-            $modname = get_config('tipcoll', 'activity_type_' . $i);
-            $modnamestr = get_string('pluginname', $modname);
-            $mform->addElement('text', 'activity_name_' . $i,
-                get_string('name') . ' - ' . $modnamestr, array('size' => '64'));
-            $mform->addRule('activity_name_' . $i,
-                null, 'required', null, 'client');
-            $mform->addRule('activity_name_' . $i, get_string(
-                'maximumchars', '', 255), 'maxlength', 255, 'client');
-            $mform->setType('activity_name_' . $i, PARAM_RAW);
+            \mod_tipcoll\factory\module::add_mform($mform, $i, $this->get_coursemodule());
         }
 
         // Add standard elements.

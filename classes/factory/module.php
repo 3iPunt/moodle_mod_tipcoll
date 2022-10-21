@@ -24,8 +24,11 @@
 
 namespace mod_tipcoll\factory;
 
+use cm_info;
 use coding_exception;
 use dml_exception;
+use moodle_exception;
+use MoodleQuickForm;
 use phpunit_util;
 use stdClass;
 use testing_data_generator;
@@ -51,6 +54,12 @@ abstract class module {
     /** @var testing_data_generator Generator */
     protected $generator;
 
+    /** @var stdClass Course */
+    protected $course;
+
+    /** @var int Course ID */
+    protected $courseid;
+
     /** @var int Section */
     protected $section;
 
@@ -64,15 +73,10 @@ abstract class module {
      * constructor.
      *
      * @param string $component
-     * @param string $title
-     * @param string $intro
      */
-    public function __construct(int $section, string $component, string $title, string $intro = '') {
+    public function __construct(string $component) {
         $generator = phpunit_util::get_data_generator();
         $this->generator = $generator->get_plugin_generator($component);
-        $this->section = $section;
-        $this->title = $title;
-        $this->intro = $intro;
     }
 
     /**
@@ -94,11 +98,131 @@ abstract class module {
     }
 
     /**
+     * Set.
+     *
+     * @param object $moduleinstance
+     * @param int $i
+     * @throws dml_exception
+     */
+    public function set(object $moduleinstance, int $i) {
+
+        $vartitle = 'activity_name_' . $i;
+        $title = isset($moduleinstance->$vartitle) ? $moduleinstance->$vartitle : '';
+        $varintro = 'activity_intro_' . $i;
+        $intro = isset($moduleinstance->$varintro) ? $moduleinstance->$varintro : '';
+
+        $this->courseid = $moduleinstance->course;
+        $this->course = get_course($this->courseid);
+        $this->section = $moduleinstance->section;
+        $this->title = $title;
+        $this->intro = $intro;
+    }
+
+    /**
+     * Add Instance.
+     *
+     * @param object $moduleinstance
+     * @return bool|int
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function add_instance(object $moduleinstance) {
+        global $DB;
+        $numactivities = (int)get_config('tipcoll', 'numactivities');
+        $activitiesdata = [];
+        $activities = [];
+
+        for ($i = 1; $i <= $numactivities; $i++) {
+            $modname = get_config('tipcoll', 'activity_type_' . $i);
+            $factname = 'mod_tipcoll\factory\module_' . $modname;
+            /** @var module $factory */
+            $factory = new $factname();
+            $activity = $factory->create($i, $moduleinstance);
+            $activitiesdata[$i] = $activity;
+            $activities[] = $activity['id'];
+        }
+
+        $moduleinstance->timecreated = time();
+        $moduleinstance->cmids = implode(',', $activities);
+        $moduleinstance->cmdata = json_encode($activitiesdata);
+        return $DB->insert_record('tipcoll', $moduleinstance);
+    }
+
+    /**
+     * Update Instance.
+     *
+     * @param object $moduleinstance
+     * @return bool|int
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function update_instance(object $moduleinstance) {
+        global $DB;
+
+        $numactivities = (int)get_config('tipcoll', 'numactivities');
+        $activitiesdata = [];
+        $activities = [];
+
+        for ($i = 1; $i <= $numactivities; $i++) {
+            $modname = get_config('tipcoll', 'activity_type_' . $i);
+            $factname = 'mod_tipcoll\factory\module_' . $modname;
+            /** @var module $factory */
+            $factory = new $factname();
+            $activity = $factory->update($i, $moduleinstance, $moduleinstance->coursemodule);
+            $activitiesdata[$i] = $activity;
+            $activities[] = $activity['id'];
+        }
+
+        $moduleinstance->timemodified = time();
+        $moduleinstance->id = $moduleinstance->instance;
+        $moduleinstance->cmids = implode(',', $activities);
+        $moduleinstance->cmdata = json_encode($activitiesdata);
+        $DB->update_record('tipcoll', $moduleinstance);
+        return true;
+    }
+
+    /**
      * Create.
      *
-     * @param int $courseid
-     * @return stdClass
+     * @param int $i
+     * @param object $moduleinstance
+     * @return array
      */
-    abstract public function create(int $courseid): \stdClass;
+    abstract public function create(int $i, object $moduleinstance): array;
+
+    /**
+     * Update.
+     *
+     * @param int $i
+     * @param object $moduleinstance
+     * @param int $cmid
+     * @return array
+     */
+    abstract public function update(int $i, object $moduleinstance, int $cmid): array;
+
+    /**
+     * Add mForm.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $i
+     * @param stdClass|null $cm
+     * @throws dml_exception
+     */
+    public static function add_mform(MoodleQuickForm &$mform, int $i, stdClass $cm = null) {
+        $modname = get_config('tipcoll', 'activity_type_' . $i);
+        $factname = 'mod_tipcoll\factory\module_' . $modname;
+        /** @var module $factory */
+        $factory = new $factname();
+        $factory->add_mform_item($mform, $i, $cm);
+    }
+
+    /**
+     * Create.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $i
+     * @param stdClass|null $cm
+     */
+    abstract public function add_mform_item(MoodleQuickForm &$mform, int $i, stdClass $cm = null);
 
 }

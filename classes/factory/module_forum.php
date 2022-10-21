@@ -24,8 +24,14 @@
 
 namespace mod_tipcoll\factory;
 
+use cm_info;
+use coding_exception;
 use dml_exception;
 use mod_forum_generator;
+use mod_tipcoll\tipcoll;
+use moodle_exception;
+use MoodleQuickForm;
+use stdClass;
 
 /**
  * Class module_forum
@@ -37,7 +43,10 @@ use mod_forum_generator;
 class module_forum extends module {
 
     /** @var string Mod Name */
-    protected $modname = 'url';
+    protected $modname = 'forum';
+
+    /** @var string Mod Name String */
+    protected $modnamestr;
 
     /** @var mod_forum_generator Generator */
     protected $generator;
@@ -48,25 +57,25 @@ class module_forum extends module {
     /**
      * constructor.
      *
-     * @param int $section
-     * @param string $title
-     * @param string $intro
+     * @throws coding_exception
      */
-    public function __construct(int $section, string $title, string $intro = '') {
-        parent::__construct($section, 'mod_forum', $title, $intro);
+    public function __construct() {
+        parent::__construct('mod_forum');
+        $this->modnamestr = get_string('pluginname', 'forum');
     }
 
     /**
      * Create.
      *
-     * @param int $courseid
-     * @return bool
+     * @param int $i
+     * @param $moduleinstance
+     * @return array
      * @throws dml_exception
      */
-    public function create(int $courseid): \stdClass {
-        $course = get_course($courseid);
+    public function create(int $i, $moduleinstance): array {
+        parent::set($moduleinstance, $i);
         $record = [
-            'course' => $course,
+            'course' => $this->course,
             'name' => $this->title,
             'intro' => !empty($this->intro) ? $this->intro : ' ',
             'showdescription' => !empty($this->intro) ? 1 : 0,
@@ -78,7 +87,73 @@ class module_forum extends module {
             'visible' => true,
             'showdescription' => !empty($this->intro)
         ];
-        return $this->generator->create_instance($record, $options);
+        $instance = $this->generator->create_instance($record, $options);
+
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $this->modname;
+        $activity['name'] = $this->title;
+        $activity['intro'] = $this->intro;
+        return $activity;
+    }
+
+    /**
+     * Update.
+     *
+     * @param int $i
+     * @param object $moduleinstance
+     * @param int $cmid
+     * @return array
+     * @throws moodle_exception
+     */
+    public function update(int $i, object $moduleinstance, int $cmid): array {
+        global $DB;
+        parent::set($moduleinstance, $i);
+
+        $tipcoll = new tipcoll($cmid);
+        $instance = $tipcoll->get_activity($i);
+
+        $instance->name = $this->title;
+        $instance->intro = !empty($this->intro) ? $this->intro : ' ';
+
+        $DB->update_record($this->modname, $instance);
+
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $this->modname;
+        $activity['name'] = $this->title;
+        $activity['intro'] = $this->intro;
+        return $activity;
+    }
+
+    /**
+     * Add mForm Item.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $i
+     * @param stdClass|null $cm
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function add_mform_item(MoodleQuickForm &$mform, int $i, stdClass $cm = null) {
+        if (!is_null($cm)) {
+            $tipcoll = new tipcoll($cm->id);
+            $instance = $tipcoll->get_activity($i);
+        } else {
+            $instance = null;
+        }
+        // Name.
+        $activityname = 'activity_name_' . $i;
+        $mform->addElement('text', $activityname,
+            $this->modnamestr . ' - ' . get_string('name'), array('size' => '64'));
+        $mform->addRule($activityname, null, 'required', null, 'client');
+        $mform->addRule($activityname, get_string(
+            'maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->setType($activityname, PARAM_RAW);
+        if (isset($instance)) {
+            $mform->setDefault($activityname, $instance->name);
+        }
     }
 
 }

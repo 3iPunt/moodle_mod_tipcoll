@@ -24,8 +24,14 @@
 
 namespace mod_tipcoll\factory;
 
+use coding_exception;
 use dml_exception;
+use mod_tipcoll\tipcoll;
 use mod_url_generator;
+use moodle_exception;
+use MoodleQuickForm;
+use stdClass;
+use cm_info;
 
 /**
  * Class module_url
@@ -39,6 +45,9 @@ class module_url extends module {
     /** @var string Mod Name */
     protected $modname = 'url';
 
+    /** @var string Mod Name String */
+    protected $modnamestr;
+
     /** @var mod_url_generator Generator */
     protected $generator;
 
@@ -48,29 +57,31 @@ class module_url extends module {
     /**
      * constructor.
      *
-     * @param int $section
-     * @param string $title
-     * @param string $intro
-     * @param string $link
+     * @throws coding_exception
      */
-    public function __construct(int $section, string $title, string $intro = '', string $link = '#') {
-        parent::__construct($section, 'mod_url', $title, $intro);
-        $this->link = $link;
+    public function __construct() {
+        parent::__construct('mod_url');
+        $this->modnamestr = get_string('pluginname', 'url');
     }
 
     /**
      * Create.
      *
-     * @param int $courseid
-     * @return bool
+     * @param int $i
+     * @param $moduleinstance
+     * @return array
      * @throws dml_exception
      */
-    public function create(int $courseid): \stdClass {
-        $course = get_course($courseid);
+    public function create(int $i, $moduleinstance): array {
+        parent::set($moduleinstance, $i);
+
+        $varlink = 'activity_link_' . $i;
+        $link = isset($moduleinstance->$varlink) ? $moduleinstance->$varlink : '';
+
         $record = [
-            'course' => $course,
+            'course' => $this->course,
             'name' => $this->title,
-            'externalurl' => $this->link,
+            'externalurl' => $link,
             'intro' => !empty($this->intro) ? $this->intro : ' ',
             'showdescription' => !empty($this->intro) ? 1 : 0,
             'introformat' => FORMAT_HTML,
@@ -81,7 +92,91 @@ class module_url extends module {
             'visible' => true,
             'showdescription' => !empty($this->intro)
         ];
-        return $this->generator->create_instance($record, $options);
+
+        $instance = $this->generator->create_instance($record, $options);
+
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $this->modname;
+        $activity['name'] = $this->title;
+        $activity['intro'] = $this->intro;
+        $activity['url'] = $link;
+        return $activity;
+    }
+
+    /**
+     * Update.
+     *
+     * @param int $i
+     * @param object $moduleinstance
+     * @param int $cmid
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function update(int $i, object $moduleinstance, int $cmid): array {
+        global $DB;
+        parent::set($moduleinstance, $i);
+
+        $varlink = 'activity_link_' . $i;
+        $link = isset($moduleinstance->$varlink) ? $moduleinstance->$varlink : '';
+
+        $tipcoll = new tipcoll($cmid);
+        $instance = $tipcoll->get_activity($i);
+
+        $instance->name = $this->title;
+        $instance->externalurl = $link;
+        $instance->intro = !empty($this->intro) ? $this->intro : ' ';
+
+        $DB->update_record($this->modname, $instance);
+
+        $activity = [];
+        $activity['id'] = $instance->cmid;
+        $activity['type'] = $this->modname;
+        $activity['name'] = $this->title;
+        $activity['intro'] = $this->intro;
+        $activity['url'] = $link;
+        return $activity;
+    }
+
+    /**
+     * Add mForm Item.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $i
+     * @param stdClass|null $cm
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function add_mform_item(MoodleQuickForm &$mform, int $i, stdClass $cm = null) {
+        if (!is_null($cm)) {
+            $tipcoll = new tipcoll($cm->id);
+            $instance = $tipcoll->get_activity($i);
+        } else {
+            $instance = null;
+        }
+        // Name.
+        $activityname = 'activity_name_' . $i;
+        $mform->addElement('text', $activityname,
+            $this->modnamestr . ' - ' . get_string('name'), array('size' => '64'));
+        $mform->addRule($activityname, null, 'required', null, 'client');
+        $mform->addRule($activityname, get_string(
+            'maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->setType($activityname, PARAM_RAW);
+        if (isset($instance)) {
+            $mform->setDefault($activityname, $instance->name);
+        }
+
+        // Link.
+        $activitylink = 'activity_link_' . $i;
+        $mform->addElement('url', $activitylink,
+            $this->modnamestr . ' - ' . get_string('url'), array('size' => '64'));
+        $mform->addRule($activitylink, null, 'required', null, 'client');
+        $mform->setType($activitylink, PARAM_RAW);
+        if (isset($instance)) {
+            $mform->setDefault($activitylink, $instance->externalurl);
+        }
     }
 
 }
