@@ -25,6 +25,9 @@
 namespace mod_tipcoll\output;
 
 use cm_info;
+use coding_exception;
+use dml_exception;
+use mod_tipcoll\tipcoll;
 use moodle_exception;
 use renderable;
 use renderer_base;
@@ -40,8 +43,14 @@ use templatable;
  */
 class courseview_component implements renderable, templatable {
 
+    /** @var int Course Module ID */
+    protected $cmid;
+
     /** @var stdClass Course Module */
     protected $cm;
+
+    /** @var stdClass[] Instance */
+    protected $cmdata;
 
     /** @var stdClass Instance */
     protected $instance;
@@ -54,6 +63,7 @@ class courseview_component implements renderable, templatable {
      */
     public function __construct(int $cmid) {
         global $DB;
+        $this->cmid = $cmid;
         $this->cm = $DB->get_record('course_modules', array( 'id' => $cmid ));
         $this->instance = $DB->get_record('tipcoll', array( 'id' => $this->cm->instance ));
     }
@@ -63,10 +73,36 @@ class courseview_component implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
-        $data->name = $this->instance->name;
+        $data->title = get_string('welcome', 'mod_tipcoll');
+        $data->description = $this->get_description();
+        $data->deadline = $this->get_deadline();
+        $data->cmid = $this->cmid;
         return $data;
     }
+
+    /**
+     * Get Description.
+     *
+     */
+    public function get_description(): string {
+        return $this->instance->intro;
+    }
+
+    /**
+     * Get Deadline.
+     *
+     * @throws coding_exception
+     */
+    public function get_deadline(): string {
+        return userdate(
+            $this->instance->feedback_deadline,
+            get_string('strftimedate', 'core_langconfig')
+        );
+    }
+
 }

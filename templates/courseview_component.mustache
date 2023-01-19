@@ -20,7 +20,31 @@
 
 }}
 <div data-region="mod_tipcoll">
-   <h3>{{ name }}</h3>
-    <div>Esto es una prueba para ver cómo queda</div>
-    <button class="btn btn-primary">Acción</button>
+    <h5>{{ title }}</h5>
+
+    <div>{{{  description }}}</div>
+
+    <div class="tipcoll-actions">
+        {{> mod_tipcoll/feedback_modal }}
+
+        <div class="deadline">
+            <span class="label">{{# str }} feedback_deadline, mod_tipcoll {{/str}}: </span>
+            <span>{{ deadline }}</span>
+        </div>
+    </div>
 </div>
+<style>
+    div[data-region="mod_tipcoll"] .tipcoll-actions {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline {
+        margin-top: 10px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline .label {
+        font-weight: bold;
+    }
+</style>

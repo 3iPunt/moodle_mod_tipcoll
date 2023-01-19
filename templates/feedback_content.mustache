@@ -1,0 +1,43 @@
+<div class="modal-content" data-region="feedback-content" data-id="{{ cmid }}">
+    <div class="modal-header">
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            {{# questions }}
+                <li class="nav-item">
+                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#q{{ id }}" role="tab" aria-controls="q{{ id }}" aria-selected="false">
+                        {{ order }}
+                    </a>
+                </li>
+            {{/ questions }}
+        </ul>
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+
+    </div>
+    <div class="modal-body">
+
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="q0" role="tabpanel" aria-labelledby="home-tab">
+                <h3 class="modal-title">
+                    {{# str }} want_start, mod_tipcoll {{/str}}
+                </h3>
+                <p class="modal-desc">
+                    {{# str }} want_start_desc, mod_tipcoll {{/str}}
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <a type="button" class="btn btn-primary" data-toggle="tab" href="#q1" role="tab" aria-controls="q1">
+                        {{# str }} start, mod_tipcoll {{/str}}
+                    </a>
+                </div>
+            </div>
+            {{# questions }}
+                <div class="tab-pane fade" id="q{{ id }}" role="tabpanel" aria-labelledby="profile-tab">
+                    {{> mod_tipcoll/question_component }}
+                </div>
+            {{/ questions }}
+        </div>
+    </div>
+</div>

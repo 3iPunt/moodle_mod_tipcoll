@@ -109,4 +109,28 @@ class tipcoll {
         }
     }
 
+    /**
+     * Get Description.
+     *
+     * @throws dml_exception
+     */
+    public function get_description(): string {
+        global $DB;
+        $instance = $DB->get_record($this->cm->modname, ['id' => $this->cm->instance]);
+        if (isset($instance)) {
+            $introrewrite = file_rewrite_pluginfile_urls(
+                $instance->intro,
+                'pluginfile.php',
+                $this->cm->context->id,
+                'mod_' . $this->cm->modname,
+                'intro',
+                null);
+
+            $desc = format_text($introrewrite, FORMAT_HTML, array('filter' => true));
+            return empty($desc) ? '<p>...</p>' : $desc;
+        } else {
+            return '<p>...</p>';
+        }
+    }
+
 }

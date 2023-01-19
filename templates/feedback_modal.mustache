@@ -1,0 +1,105 @@
+<div id="feedback_modal">
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedbackModal-{{ cmid }}">
+        {{# str }} start_feedback, mod_tipcoll {{/str}}
+    </button>
+
+    <div class="modal fade" id="feedbackModal-{{ cmid }}" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel-{{ cmid }}" aria-hidden="true">
+        <div class="modal-dialog" role="document" data-region="feedback-modal-{{ cmid }}" data-id="{{ cmid }}">
+            <div class="modal-content" data-region="feedback-content">
+                ...
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    div[data-region="mod_tipcoll"] .modal-header {
+        border-bottom: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        height: 60px;
+        padding: 0;
+    }
+    div[data-region="mod_tipcoll"] .modal-header .close {
+        position: absolute;
+        right: 14px;
+        top: 7px;
+    }
+    div[data-region="mod_tipcoll"] .modal-body {
+    }
+    div[data-region="mod_tipcoll"] .modal-body .modal-title {
+        font-size: 30px;
+        line-height: 28px;
+        margin-bottom: 15px;
+        padding: 0 20px;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .modal-desc {
+        font-size: 22px;
+        text-align: center;
+        line-height: 21px;
+        margin-bottom: 35px;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .modal-actions {
+        border: none;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: center;
+        justify-content: center;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .tab-pane {
+        text-align: center;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .modal-actions .btn {
+        margin-bottom: 10px;
+    }
+    div[data-region="mod_tipcoll"] .modal-header .nav.nav-tabs {
+        border: none;
+    }
+    div[data-region="mod_tipcoll"] .modal-header .nav.nav-tabs .nav-link {
+        border-radius: 30px;
+        height: 30px;
+        width: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 7px;
+        padding: 0;
+        background-color: #ececec;
+        color: black;
+    }
+    div[data-region="mod_tipcoll"] .modal-header .nav.nav-tabs .nav-link.disabled {
+        background-color: whitesmoke;
+        color: grey;
+    }
+    div[data-region="mod_tipcoll"] .modal-header .nav.nav-tabs .nav-link.active {
+        background-color: black;
+        color: white;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .responses {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: 35px 0;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .responses button.response {
+        height: 100px;
+        width: 100px;
+        background: #FFFFFF;
+        border: 1px solid #FFFFFF;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        font-size: 14px;
+    }
+    div[data-region="mod_tipcoll"] .modal-body .responses button.response.active {
+        background: #12130F;
+        border: 3px solid #FFFFFF;
+        color: white;
+    }
+</style>
+{{# js }}
+    require(['mod_tipcoll/feedback_modal'], function(feedbackModal) {
+        feedbackModal.initFeedbackModal('[data-region="feedback-modal-{{ cmid }}"]', '{{ cmid }}');
+    });
+{{/ js }}
