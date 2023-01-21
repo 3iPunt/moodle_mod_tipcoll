@@ -77,14 +77,16 @@ define([
                     Ajax.call([request_footer])[0].done(function(response) {
                         if (response.success) {
                             let template = TEMPLATES.MODULE_CONTENT;
-                            Templates.render(template, response.data).done(function(html, js) {
+                            Templates.render(template, response).done(function(html, js) {
                                 identifier.html(html);
                                 Templates.runTemplateJS(js);
                             });
                         } else {
-                            console.log(response.error);
+                            console.log(response);
                         }
-                    }).fail();
+                    }).fail(function(response) {
+                        console.log(response);
+                    });
                 });
             });
 

@@ -68,6 +68,7 @@ class module_feedback extends module {
      * @param string $intro
      * @param int $section
      * @return stdClass
+     * @throws moodle_exception
      */
     public function create_questionnaire(object $moduleinstance, string $title, string $intro, int $section): stdClass {
         $record = [
@@ -76,6 +77,7 @@ class module_feedback extends module {
             'intro' => !empty($intro) ? $intro : ' ',
             'showdescription' => !empty($intro) ? 1 : 0,
             'introformat' => FORMAT_HTML,
+            'anonymous' => 2,
             'files' => file_get_unused_draft_itemid(),
         ];
         $options = [

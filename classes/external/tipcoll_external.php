@@ -22,13 +22,13 @@
 
 namespace mod_tipcoll\external;
 
+use context_course;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_tipcoll\models\feedback;
 use mod_tipcoll\tipcoll;
 use mod_tipcoll\tipcoll_user;
 use moodle_exception;
@@ -77,6 +77,16 @@ class tipcoll_external extends external_api {
         $data = [
                 'deadline' => null,
                 'cmid' => null,
+                'is_teacher' => false,
+                'is_student' => false,
+                'teacher_data' => [
+                        'enabled' => false,
+                        'deadline' => '',
+                        'remain' => 0,
+                        'already' => 0,
+                        'url' => '#',
+                        'can_create_groups' => false
+                ],
                 'status_feedback' => [
                         'enabled' => false,
                         'deadline' => '',
@@ -94,38 +104,57 @@ class tipcoll_external extends external_api {
                 ]
         ];
 
-        if (!is_null($feedbackinstance)) {
-            $success = true;
-            $data['cmid'] = $tipcoll->get_cmid();
-            $data['title'] = $tipcoll->get_title();
-            $data['description'] = $tipcoll->get_description();
-            switch ($tipcoll->get_status()) {
-                case 'deadline':
-                    $tipcolluser = new tipcoll_user($tipcoll, $USER);
-                    $status = [];
-                    $status['enabled'] = true;
-                    $status['has_group'] = $tipcolluser->has_group();
-                    $status['groupname'] = $tipcolluser->get_groupname();
-                    $status['participants'] = $tipcolluser->get_members();
-                    $data['status_deadline'] = $status;
-                    break;
-                case 'completed':
+        try {
+            if (!is_null($feedbackinstance)) {
+                $success = true;
+                $data['cmid'] = $tipcoll->get_cmid();
+                $data['title'] = $tipcoll->get_title();
+                $data['description'] = $tipcoll->get_description();
+                $tipcolluser = new tipcoll_user($tipcoll, $USER);
+                if ($tipcolluser->is_student()) {
+                    $data['is_student'] = true;
+                    switch ($tipcolluser->get_status()) {
+                        case 'deadline':
+                            $status = [];
+                            $status['enabled'] = true;
+                            $status['has_group'] = $tipcolluser->has_group();
+                            $status['groupname'] = $tipcolluser->get_groupname();
+                            $status['participants'] = $tipcolluser->get_members();
+                            $data['status_deadline'] = $status;
+                            break;
+                        case 'completed':
+                            $status = [];
+                            $status['enabled'] = true;
+                            $status['deadline'] = $tipcoll->get_deadline();
+                            $data['status_completed'] = $status;
+                            break;
+                        case 'feedback':
+                            $feedback = $tipcoll->get_feedback();
+                            $status = [];
+                            $status['enabled'] = true;
+                            $status['deadline'] = $tipcoll->get_deadline();
+                            $status['questions'] = $feedback->get_questions();
+                            $data['status_feedback'] = $status;
+                            break;
+                    }
+                }
+                if ($tipcolluser->is_teacher()) {
+                    $data['is_teacher'] = true;
                     $status = [];
                     $status['enabled'] = true;
                     $status['deadline'] = $tipcoll->get_deadline();
-                    $data['status_completed'] = $status;
-                    break;
-                case 'feedback':
-                    $feedback = new feedback($feedbackinstance->cmid);
-                    $status = [];
-                    $status['enabled'] = true;
-                    $status['deadline'] = $tipcoll->get_deadline();
-                    $status['questions'] = $feedback->get_questions();
-                    $data['status_feedback'] = $status;
-                    break;
+                    $status['already'] = $tipcoll->get_feedback()->get_already();
+                    $status['remain'] = $tipcoll->get_feedback()->get_remain();
+                    $status['url'] = $tipcoll->get_group_url();
+                    $status['can_create_groups'] = $tipcoll->can_create_groups();
+                    $data['teacher_data'] = $status;
+                }
+
+            } else {
+                $error = 'FEEDBACK NOT FOUND';
             }
-        } else {
-            $error = 'FEEDBACK NOT FOUND';
+        } catch (moodle_exception $e) {
+            $error = $e->getMessage();
         }
 
         return [
@@ -147,7 +176,18 @@ class tipcoll_external extends external_api {
                     array(
                     'cmid' =>  new external_value(PARAM_INT, 'Course Module ID'),
                     'title' =>  new external_value(PARAM_TEXT, 'Title'),
+                    'is_student' => new external_value(PARAM_BOOL, 'Is Student?'),
+                    'is_teacher' => new external_value(PARAM_BOOL, 'Is Teacher?'),
                     'description' =>  new external_value(PARAM_RAW, 'Course Module Intro'),
+                    'teacher_data' => new external_single_structure(
+                    array(
+                        'enabled' => new external_value(PARAM_BOOL, 'Enabled?'),
+                        'can_create_groups' => new external_value(PARAM_BOOL, 'Can Create Group?'),
+                        'deadline' => new external_value(PARAM_TEXT, 'Deadline'),
+                        'remain' => new external_value(PARAM_INT, 'Users remain to be answered'),
+                        'already' => new external_value(PARAM_INT, 'Users have answered'),
+                        'url' => new external_value(PARAM_RAW, 'URL')
+                    ), '', VALUE_OPTIONAL),
                     'status_feedback' => new external_single_structure(
                     array(
                        'enabled' => new external_value(PARAM_BOOL, 'Enabled?'),

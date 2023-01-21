@@ -27,10 +27,13 @@ namespace mod_tipcoll\models;
 use cm_info;
 use coding_exception;
 use dml_exception;
+use invalid_parameter_exception;
 use mod_feedback\external\feedback_item_exporter;
 use mod_feedback_external;
 use mod_feedback_structure;
+use mod_tipcoll\tipcoll;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
@@ -55,16 +58,50 @@ class feedback {
     /** @var stdClass Instance */
     protected $instance;
 
+    /** @var tipcoll TipColl */
+    protected $tipcoll;
+
+    /** @var int Remain */
+    protected $remain;
+
     /**
      * constructor.
      *
-     * @param int $cmid
+     * @param stdClass $instance
+     * @param tipcoll $tipcoll
      * @throws moodle_exception
      */
-    public function __construct(int $cmid) {
-        global $DB;
-        list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid);
-        $this->instance = $DB->get_record('feedback', ['id' => $this->cm->instance]);
+    public function __construct(stdClass $instance, tipcoll $tipcoll) {
+        list($this->course, $this->cm) = get_course_and_cm_from_cmid($instance->cmid);
+        $this->instance = $instance;
+        $this->tipcoll = $tipcoll;
+    }
+
+    /**
+     * Get Instance.
+     *
+     * @return stdClass
+     */
+    public function get_instance(): stdClass {
+        return $this->instance;
+    }
+
+    /**
+     * Get CM.
+     *
+     * @return cm_info
+     */
+    public function get_cm(): cm_info {
+        return $this->cm;
+    }
+
+    /**
+     * Get Instance Id.
+     *
+     * @return int
+     */
+    public function get_id(): int {
+        return $this->instance->id;
     }
 
     /**
@@ -94,6 +131,8 @@ class feedback {
     /**
      * Get Responses.
      *
+     * @param string $presentation
+     * @param int $qid
      * @return array
      */
     public function get_responses(string $presentation, $qid): array {
@@ -114,6 +153,42 @@ class feedback {
             $order ++;
         }
         return $items;
+    }
+
+    /**
+     * Get Already.
+     *
+     * @return int
+     * @throws dml_exception
+     */
+    public function get_already(): int {
+        $total = $this->tipcoll->get_total_students();
+        return $total - $this->get_remain();
+    }
+
+    /**
+     * Get Remain.
+     *
+     * @return int
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
+    public function get_remain(): int {
+        if (is_null($this->remain)) {
+            $this->set_remain();
+        }
+        return $this->remain;
+    }
+
+    /**
+     * Set Already.
+     *
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
+    protected function set_remain() {
+        $res = mod_feedback_external::get_non_respondents($this->get_id());
+        $this->remain = $res['total'];
     }
 
 }

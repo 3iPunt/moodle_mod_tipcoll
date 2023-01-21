@@ -26,8 +26,11 @@ namespace mod_tipcoll;
 
 use cm_info;
 use coding_exception;
+use course_enrolment_manager;
 use dml_exception;
+use mod_tipcoll\models\feedback;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
@@ -45,7 +48,6 @@ class tipcoll {
 
     const TABLE = ['tipcoll'];
 
-
     /** @var stdClass Course */
     protected $course;
 
@@ -54,6 +56,9 @@ class tipcoll {
 
     /** @var stdClass Instance */
     protected $instance;
+
+    /** @var feedback Feedback */
+    protected $feedback;
 
     /**
      * constructor.
@@ -84,19 +89,6 @@ class tipcoll {
     }
 
     /**
-     * Get Status.
-     *
-     * @return string
-     */
-    public function get_status(): string {
-        if ($this->instance->feedback_deadline < time()) {
-            return 'deadline';
-        } else {
-            return 'feedback';
-        }
-    }
-
-    /**
      * Get Title.
      *
      * @throws coding_exception
@@ -112,9 +104,17 @@ class tipcoll {
      */
     public function get_deadline(): string {
         return userdate(
-                $this->instance->feedback_deadline,
+                $this->get_deadline_timestamp(),
                 get_string('strftimedate', 'core_langconfig')
         );
+    }
+
+    /**
+     * Get Deadline Unixtime.
+     *
+     */
+    public function get_deadline_timestamp(): string {
+        return $this->instance->feedback_deadline;
     }
 
     /**
@@ -145,23 +145,37 @@ class tipcoll {
     /**
      * Get feedback
      *
-     * @return false|mixed|stdClass
-     * @throws dml_exception
+     * @return feedback
      * @throws moodle_exception
      */
-    public function get_feedback() {
+    public function get_feedback(): feedback {
+        if (is_null($this->feedback)) {
+            $this->set_feedback();
+        }
+        return $this->feedback;
+    }
+
+    /**
+     * Set Feedback.
+     *
+     * @throws moodle_exception
+     */
+    protected function set_feedback() {
         global $DB;
-        $instanccoll = $DB->get_record('tipcoll', ['id' => $this->cm->instance], '*', MUST_EXIST);
-        if (isset($instanccoll->feedbackid)) {
-            $feedbackcmid = $instanccoll->feedbackid;
-            list($course, $cm) = get_course_and_cm_from_cmid($feedbackcmid);
-            $instance = $DB->get_record('feedback', ['id' => $cm->instance], '*', MUST_EXIST);
-            $instance->cmid = $feedbackcmid;
-            $instance->section = $cm->section;
-            return $instance;
-        } else {
-            debugging('Feedback NOT FOUND');
-            return null;
+        try {
+            $instanccoll = $DB->get_record('tipcoll', ['id' => $this->cm->instance], '*', MUST_EXIST);
+            if (isset($instanccoll->feedbackid)) {
+                $feedbackcmid = $instanccoll->feedbackid;
+                list($course, $cm) = get_course_and_cm_from_cmid($feedbackcmid);
+                $instance = $DB->get_record('feedback', ['id' => $cm->instance], '*', MUST_EXIST);
+                $instance->cmid = $feedbackcmid;
+                $instance->section = $cm->section;
+                $this->feedback = new feedback($instance, $this);
+            } else {
+                throw new moodle_exception('Feedback NOT FOUND');
+            }
+        } catch (moodle_exception $e) {
+            throw new moodle_exception('Feedback NOT FOUND: ' . $e->getMessage());
         }
     }
 
@@ -189,10 +203,40 @@ class tipcoll {
         }
     }
 
-    public function get_group() {
-        global $USER;
+    /**
+     * Get Group URL.
+     *
+     * @return string
+     * @throws moodle_exception
+     */
+    public function get_group_url(): string {
+        $url = new moodle_url('/mod/tipcoll/groups.php', ['id' => $this->course->id]);
+        return $url->out(false);
+    }
 
+    /**
+     * Can Create Groups?
+     *
+     * @return bool
+     */
+    public function can_create_groups(): bool {
+        return $this->get_deadline_timestamp() >= time();
+    }
 
+    /**
+     * Get Total Students.
+     *
+     * @return int
+     * @throws dml_exception
+     */
+    public function get_total_students(): int {
+        global $DB, $PAGE, $CFG;
+        require_once($CFG->dirroot . '/enrol/locallib.php');
+        $role = $DB->get_record('role', array('shortname' => 'student'));
+        $enrolmanager = new course_enrolment_manager($PAGE, $this->course, $instancefilter = null, $role->id,
+                $searchfilter = '', $groupfilter = 0, $statusfilter = -1);
+        $students = $enrolmanager->get_users('id', 'ASC', 0, 0);
+        return count($students);
     }
 
 }

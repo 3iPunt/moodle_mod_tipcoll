@@ -19,6 +19,8 @@
 
 
 }}
+{{# success }}
+{{# data }}
 <div class="content" data-cmid="{{ cmid }}">
 
     <h5>{{ title }}</h5>
@@ -27,12 +29,14 @@
 
     <div class="tipcoll-actions" data-cmid="{{ cmid }}">
 
+        {{# is_student }}
+
         {{# status_feedback}}
             {{# enabled }}
                 {{> mod_tipcoll/feedback_modal }}
-                <div class="status_feedback">
+                <div class="deadline-main">
                     <span class="label">{{# str }} feedback_deadline, mod_tipcoll {{/str}}: </span>
-                    <span>{{ deadline }}</span>
+                    <span class="deadline-text">{{ deadline }}</span>
                 </div>
             {{/ enabled }}
         {{/ status_feedback}}
@@ -40,9 +44,12 @@
         {{# status_completed }}
             {{# enabled }}
                 <div class="status_completed">
-                    <h3>{{# str }} feedback_completed, mod_tipcoll {{/str}}</h3>
-                    <h5>{{# str }} you_must_wait, mod_tipcoll {{/str}}</h5>
-                    <span>{{ deadline }}</span>
+                    <h3 class="title">{{# str }} feedback_completed, mod_tipcoll {{/str}}</h3>
+                    <h5 class="subtitle">{{# str }} you_must_wait, mod_tipcoll {{/str}}</h5>
+                    <div class="deadline-main">
+                        <span class="label">{{# str }} feedback_deadline, mod_tipcoll {{/str}}: </span>
+                        <span class="deadline-text">{{ deadline }}</span>
+                    </div>
                 </div>
             {{/ enabled }}
         {{/ status_completed }}
@@ -68,9 +75,67 @@
             {{/ enabled }}
         {{/ status_deadline }}
 
+        {{/ is_student }}
+
+        {{# is_teacher }}
+
+            <div class="actions-teacher">
+                {{# teacher_data }}
+                <div class="data">
+                    <div class="dato remain">
+                        {{#pix}} icons/remain, mod_tipcoll {{/pix}}
+                        <span class="label">{{# str }} remain, mod_tipcoll {{/str}}: </span>
+                        <span class="value">{{ remain }}</span>
+                    </div>
+                    <div class="dato already">
+                        {{#pix}} icons/already, mod_tipcoll {{/pix}}
+                        <span class="label">{{# str }} already, mod_tipcoll {{/str}}: </span>
+                        <span class="value">{{ already }}</span>
+                    </div>
+                </div>
+
+                <div class="act-buttons">
+                    <div class="item view-result">
+                        <span class="title">{{# str }} show_response, mod_tipcoll {{/str}}</span>
+                        <a href="#" target="_blank" class="btn btn-outline-primary btn-sm">
+                            {{# str }} view_result, mod_tipcoll {{/str}}
+                        </a>
+                    </div>
+                    <div class="item create-group">
+                        {{# can_create_groups }}
+                            <span class="title">
+                                {{# str }} not_available, mod_tipcoll {{/str}}:<br>{{ deadline }}
+                            </span>
+                            <button href="#" target="_blank"  class="btn btn-outline-primary btn-sm" disabled>
+                                {{# str }} create_group, mod_tipcoll {{/str}}
+                            </button>
+                        {{/ can_create_groups }}
+                        {{^ can_create_groups }}
+                            <span class="title">
+                            {{# str }} can_create_groups, mod_tipcoll {{/str}}:</span>
+                            <a href="#" target="_blank"  class="btn btn-outline-primary btn-sm">
+                                {{# str }} create_group, mod_tipcoll {{/str}}
+                            </a>
+                        {{/ can_create_groups }}
+                    </div>
+                </div>
+
+                {{/ teacher_data }}
+
+            </div>
+
+        {{/ is_teacher }}
+
     </div>
 
 </div>
+{{/ data }}
+{{/ success }}
+{{^ success }}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+{{/ success }}
 <style>
     div[data-region="mod_tipcoll"] .tipcoll-actions {
         width: 100%;
@@ -78,9 +143,13 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+        margin-bottom: 10px;
     }
     div[data-region="mod_tipcoll"] .tipcoll-actions .deadline {
         margin-top: 10px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions #feedback_modal {
+        margin-bottom: 10px;
     }
     div[data-region="mod_tipcoll"] .tipcoll-actions .deadline .label {
         font-weight: bold;
@@ -101,6 +170,15 @@
         list-style: none;
         display: flex;
         justify-content: space-around;
+        flex-wrap: wrap;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants li.participant {
+        width: 200px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: start;
+        margin: 10px;
     }
     div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants li.participant img.picture-user {
         width: 20px;
@@ -109,5 +187,97 @@
     }
     div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants li.participant span.fullname {
         font-size: 12px;
+        margin-left: 5px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_completed {
+        border: 3px solid #1BC373;
+        border-radius: 8px;
+        padding: 25px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_completed h3.title {
+        font-size: 21px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_completed h5.subtitle {
+        font-size: 14px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_completed h5.subtitle {
+        font-size: 14px;
+        font-weight: normal;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline-main {
+        font-size: 12px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline-main .label {
+        font-weight: bold;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline-main .deadline-text {
+        margin-top: 10px;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .data {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .data .dato {
+        background: #FFFFFF;
+        box-shadow: 0 0 10px rgb(0 0 0 / 6%);
+        border-radius: 8px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        font-size: 12px;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .data .dato img.icon {
+        width: 13px;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .dato.remain {
+        margin-bottom: 10px;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .dato span.value {
+        font-weight: bold;
+        font-size: 18px;
+        margin: 9px;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .act-buttons {
+        background: #FFFFFF;
+        box-shadow: 0 0 10px rgb(0 0 0 / 10%);
+        border-radius: 8px;
+        padding: 8px;
+        margin-left: 12px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .act-buttons .item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 14px;
+        padding: 10px;
+        width: 250px;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .act-buttons .item.create-group {
+        border-left: 1px solid #e1e1e1;
+    }
+    div[data-region="mod_tipcoll"] .actions-teacher .act-buttons .item .title {
+        margin-bottom: 15px;
+        line-height: 15px;
     }
 </style>
