@@ -7,7 +7,7 @@
     <div class="modal fade" id="feedbackModal-{{ cmid }}" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel-{{ cmid }}" aria-hidden="true">
         <div class="modal-dialog" role="document" data-region="feedback-modal-{{ cmid }}" data-id="{{ cmid }}">
             <div class="modal-content" data-region="feedback-content">
-                ...
+                {{> mod_tipcoll/feedback_content }}
             </div>
         </div>
     </div>
@@ -98,8 +98,3 @@
         color: white;
     }
 </style>
-{{# js }}
-    require(['mod_tipcoll/feedback_modal'], function(feedbackModal) {
-        feedbackModal.initFeedbackModal('[data-region="feedback-modal-{{ cmid }}"]', '{{ cmid }}');
-    });
-{{/ js }}

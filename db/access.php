@@ -49,5 +49,27 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ),
-    )
+    ),
+
+    'mod/tipcoll:manage_group' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'student' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ),
+    ),
+
+    'mod/tipcoll:send_feedback' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'editingteacher' => CAP_PROHIBIT,
+            'manager' => CAP_PROHIBIT,
+        ),
+    ),
 );

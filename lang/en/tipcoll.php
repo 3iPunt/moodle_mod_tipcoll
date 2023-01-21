@@ -55,3 +55,6 @@ $string['start_feedback'] = 'Start survey';
 $string['want_start'] = 'I want to start!';
 $string['want_start_desc'] = 'Answer these four questions to be able to match you.';
 $string['start'] = 'Start';
+$string['feedback_completed'] = 'You have completed the survey!';
+$string['you_must_wait'] = 'But we still have to wait until the deadline';
+$string['not_group'] = 'You have not been assigned to any group';

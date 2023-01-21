@@ -19,32 +19,8 @@
 
 
 }}
-<div data-region="mod_tipcoll">
-    <h5>{{ title }}</h5>
+<div data-region="mod_tipcoll" data-cmid="{{ cmid }}">
 
-    <div>{{{  description }}}</div>
+    <div data-region="mod_tipcoll-content"  data-cmid="{{ cmid }}"></div>
 
-    <div class="tipcoll-actions">
-        {{> mod_tipcoll/feedback_modal }}
-
-        <div class="deadline">
-            <span class="label">{{# str }} feedback_deadline, mod_tipcoll {{/str}}: </span>
-            <span>{{ deadline }}</span>
-        </div>
-    </div>
 </div>
-<style>
-    div[data-region="mod_tipcoll"] .tipcoll-actions {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
-    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline {
-        margin-top: 10px;
-    }
-    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline .label {
-        font-weight: bold;
-    }
-</style>

@@ -181,3 +181,13 @@ function tipcoll_cm_info_view(cm_info $cm) {
     $cm->set_custom_cmlist_item(true);
 }
 
+
+/**
+ * Before Footer.
+ *
+ */
+function tipcoll_before_footer() {
+    global $PAGE;
+    $PAGE->requires->js_call_amd('mod_tipcoll/tipcoll', 'initTipColl');
+}
+

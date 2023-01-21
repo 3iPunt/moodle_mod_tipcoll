@@ -20,6 +20,7 @@
  */
 
 use mod_tipcoll\external\feedback_external;
+use mod_tipcoll\external\tipcoll_external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -28,15 +29,24 @@ $functions = [
         'classname' => feedback_external::class,
         'methodname' => 'feedback',
         'description' => 'Feedback > Get Feedback with questions and responses',
-        'type' => 'write',
+        'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
-    ]
+    ],
+    'mod_tipcoll_get_content' => [
+        'classname' => tipcoll_external::class,
+        'methodname' => 'content',
+        'description' => 'TIP Coll > Get MODULE with status, groups or questions and responses',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
 ];
 $services = [
     'mod_tipcoll' => [
         'functions' => [
             'mod_tipcoll_feedback',
+            'mod_tipcoll_get_content',
         ],
         'restrictedusers' => 0,
         'enabled' => 1

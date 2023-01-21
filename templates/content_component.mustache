@@ -1,0 +1,113 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template mod_tipcoll/content_component
+
+
+}}
+<div class="content" data-cmid="{{ cmid }}">
+
+    <h5>{{ title }}</h5>
+
+    <div>{{{  description }}}</div>
+
+    <div class="tipcoll-actions" data-cmid="{{ cmid }}">
+
+        {{# status_feedback}}
+            {{# enabled }}
+                {{> mod_tipcoll/feedback_modal }}
+                <div class="status_feedback">
+                    <span class="label">{{# str }} feedback_deadline, mod_tipcoll {{/str}}: </span>
+                    <span>{{ deadline }}</span>
+                </div>
+            {{/ enabled }}
+        {{/ status_feedback}}
+
+        {{# status_completed }}
+            {{# enabled }}
+                <div class="status_completed">
+                    <h3>{{# str }} feedback_completed, mod_tipcoll {{/str}}</h3>
+                    <h5>{{# str }} you_must_wait, mod_tipcoll {{/str}}</h5>
+                    <span>{{ deadline }}</span>
+                </div>
+            {{/ enabled }}
+        {{/ status_completed }}
+
+        {{# status_deadline }}
+            {{# enabled }}
+                {{# has_group }}
+                <div class="status_deadline">
+                    <h3 class="groupname">{{ groupname }}</h3>
+                    <ul class="participants">
+                        {{# participants }}
+                       <li class="participant">
+                           <img class="picture-user" src="{{ picture }}" alt="">
+                           <span class="fullname">{{ name }}</span>
+                       </li>
+                        {{/ participants }}
+                    </ul>
+                </div>
+                {{/ has_group }}
+                {{^ has_group }}
+                    <div class="not-group">{{# str }} not_group, mod_tipcoll {{/str}}</div>
+                {{/ has_group }}
+            {{/ enabled }}
+        {{/ status_deadline }}
+
+    </div>
+
+</div>
+<style>
+    div[data-region="mod_tipcoll"] .tipcoll-actions {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline {
+        margin-top: 10px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .deadline .label {
+        font-weight: bold;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline h3.groupname {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants {
+        padding: 20px;
+        border: 1px solid #D6D6D6;
+        border-radius: 10px;
+        list-style: none;
+        display: flex;
+        justify-content: space-around;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants li.participant img.picture-user {
+        width: 20px;
+        height: 20px;
+        border-radius: 20px;
+    }
+    div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants li.participant span.fullname {
+        font-size: 12px;
+    }
+</style>

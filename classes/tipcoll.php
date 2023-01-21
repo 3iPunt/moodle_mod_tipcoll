@@ -25,6 +25,7 @@
 namespace mod_tipcoll;
 
 use cm_info;
+use coding_exception;
 use dml_exception;
 use moodle_exception;
 use stdClass;
@@ -51,6 +52,9 @@ class tipcoll {
     /** @var cm_info Course Module */
     protected $cm;
 
+    /** @var stdClass Instance */
+    protected $instance;
+
     /**
      * constructor.
      *
@@ -58,7 +62,59 @@ class tipcoll {
      * @throws moodle_exception
      */
     public function __construct(int $cmid) {
+        global $DB;
         list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid);
+        $this->instance = $DB->get_record('tipcoll', array( 'id' => $this->cm->instance ));
+    }
+
+    /**
+     * Get CM id.
+     *
+     */
+    public function get_cmid(): int {
+        return $this->cm->id;
+    }
+
+    /**
+     * Get Course.
+     *
+     */
+    public function get_course(): stdClass {
+        return $this->course;
+    }
+
+    /**
+     * Get Status.
+     *
+     * @return string
+     */
+    public function get_status(): string {
+        if ($this->instance->feedback_deadline < time()) {
+            return 'deadline';
+        } else {
+            return 'feedback';
+        }
+    }
+
+    /**
+     * Get Title.
+     *
+     * @throws coding_exception
+     */
+    public function get_title(): string {
+        return get_string('welcome', 'mod_tipcoll');
+    }
+
+    /**
+     * Get Deadline.
+     *
+     * @throws coding_exception
+     */
+    public function get_deadline(): string {
+        return userdate(
+                $this->instance->feedback_deadline,
+                get_string('strftimedate', 'core_langconfig')
+        );
     }
 
     /**
@@ -131,6 +187,12 @@ class tipcoll {
         } else {
             return '<p>...</p>';
         }
+    }
+
+    public function get_group() {
+        global $USER;
+
+
     }
 
 }

@@ -79,30 +79,8 @@ class courseview_component implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $data->title = get_string('welcome', 'mod_tipcoll');
-        $data->description = $this->get_description();
-        $data->deadline = $this->get_deadline();
         $data->cmid = $this->cmid;
         return $data;
-    }
-
-    /**
-     * Get Description.
-     *
-     */
-    public function get_description(): string {
-        return $this->instance->intro;
-    }
-
-    /**
-     * Get Deadline.
-     *
-     * @throws coding_exception
-     */
-    public function get_deadline(): string {
-        return userdate(
-            $this->instance->feedback_deadline,
-            get_string('strftimedate', 'core_langconfig')
-        );
     }
 
 }

@@ -54,3 +54,6 @@ $string['start_feedback'] = 'Empezar encuesta';
 $string['want_start'] = '¡Quiero empezar!';
 $string['want_start_desc'] = 'Responde estas cuatro preguntas para poder emparejarte.';
 $string['start'] = 'Empezar';
+$string['feedback_completed'] = '¡Has completado la encuesta!';
+$string['you_must_wait'] = 'Pero aún hay que esperar hasta la fecha límite';
+$string['not_group'] = 'No ha sido asignado a ningún grupo';

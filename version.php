@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tipcoll';
-$plugin->release = '0.0.4';
-$plugin->version = 2023011701;
+$plugin->release = '0.0.5';
+$plugin->version = 2023012100;
 $plugin->requires = 2020061504;
 $plugin->maturity = MATURITY_STABLE;
