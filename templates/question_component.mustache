@@ -1,10 +1,12 @@
-<div class="mod_tipcoll-question">
+<div class="mod_tipcoll-question" data-region="mod-tipcoll-question" data-questionid="{{ id }}">
     <h3 class="modal-title">
         {{ title }}
     </h3>
     <nav class="nav responses">
         {{# responses }}
-        <button class="response" data-rid="{{ id }}">{{ title }}</button>
+            <button data-region="mod-tipcoll-response" class="response" data-action="select_response" data-questionid="{{ questionid }}" data-responseid="{{ order }}" data-qrid="{{ id }}">
+                {{ title }}
+            </button>
         {{/ responses }}
     </nav>
 </div>

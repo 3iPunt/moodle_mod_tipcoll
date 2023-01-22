@@ -135,7 +135,7 @@ class feedback {
      * @param int $qid
      * @return array
      */
-    public function get_responses(string $presentation, $qid): array {
+    public function get_responses(string $presentation, int $qid): array {
         $answers = str_replace('r>>>>>', '', $presentation);
         $answers = str_replace('<<<<<1', '', $answers);
         $answers = str_replace("\r\n", '', $answers);
@@ -147,6 +147,7 @@ class feedback {
             $resp = trim($answer);
             $item = new stdClass();
             $item->id = $qid . '-' . $order;
+            $item->questionid = $qid;
             $item->order = $order;
             $item->title = $resp;
             $items[] = $item;

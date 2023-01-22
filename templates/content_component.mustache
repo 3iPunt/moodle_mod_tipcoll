@@ -97,7 +97,7 @@
                 <div class="act-buttons">
                     <div class="item view-result">
                         <span class="title">{{# str }} show_response, mod_tipcoll {{/str}}</span>
-                        <a href="#" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <a href="{{ url }}" target="_blank" class="btn btn-outline-primary btn-sm">
                             {{# str }} view_result, mod_tipcoll {{/str}}
                         </a>
                     </div>
@@ -106,14 +106,14 @@
                             <span class="title">
                                 {{# str }} not_available, mod_tipcoll {{/str}}:<br>{{ deadline }}
                             </span>
-                            <button href="#" target="_blank"  class="btn btn-outline-primary btn-sm" disabled>
+                            <button class="btn btn-outline-primary btn-sm" disabled>
                                 {{# str }} create_group, mod_tipcoll {{/str}}
                             </button>
                         {{/ can_create_groups }}
                         {{^ can_create_groups }}
                             <span class="title">
                             {{# str }} can_create_groups, mod_tipcoll {{/str}}:</span>
-                            <a href="#" target="_blank"  class="btn btn-outline-primary btn-sm">
+                            <a href="{{ url }}" target="_blank"  class="btn btn-outline-primary btn-sm">
                                 {{# str }} create_group, mod_tipcoll {{/str}}
                             </a>
                         {{/ can_create_groups }}
@@ -173,7 +173,7 @@
         flex-wrap: wrap;
     }
     div[data-region="mod_tipcoll"] .tipcoll-actions .status_deadline ul.participants li.participant {
-        width: 200px;
+        width: 220px;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -223,12 +223,14 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+        width: 100%;
     }
     div[data-region="mod_tipcoll"] .actions-teacher .data {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        width: 100%;
     }
     div[data-region="mod_tipcoll"] .actions-teacher .data .dato {
         background: #FFFFFF;
@@ -240,6 +242,7 @@
         justify-content: center;
         padding: 16px;
         font-size: 12px;
+        width: 100%;
     }
     div[data-region="mod_tipcoll"] .actions-teacher .data .dato img.icon {
         width: 13px;

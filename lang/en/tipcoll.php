@@ -65,3 +65,5 @@ $string['not_available'] = 'Not available until';
 $string['can_create_groups'] = 'You can now create the groups';
 $string['view_result'] = 'View result';
 $string['create_group'] = 'Create groups';
+$string['cancel'] = 'Cancel';
+$string['send_feedback'] = 'Send Feedback';

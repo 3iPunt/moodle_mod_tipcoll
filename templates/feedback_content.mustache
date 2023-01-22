@@ -4,7 +4,7 @@
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             {{# questions }}
                 <li class="nav-item">
-                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#q{{ id }}" role="tab" aria-controls="q{{ id }}" aria-selected="false">
+                    <a data-region="nav-item" class="nav-link" id="home-tab" data-toggle="tab" href="#q{{ id }}" role="tab" aria-controls="q{{ id }}" aria-selected="false">
                         {{ order }}
                     </a>
                 </li>
@@ -27,8 +27,10 @@
                     {{# str }} want_start_desc, mod_tipcoll {{/str}}
                 </p>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <a type="button" class="btn btn-primary" data-toggle="tab" href="#q1" role="tab" aria-controls="q1">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        {{# str }} cancel, mod_tipcoll {{/str}}
+                    </button>
+                    <a type="button" data-action="start" class="btn btn-primary" data-toggle="tab" href="#q1" role="tab" aria-controls="q1">
                         {{# str }} start, mod_tipcoll {{/str}}
                     </a>
                 </div>
@@ -40,4 +42,16 @@
             {{/ questions }}
         </div>
     </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-primary hidden" data-action="send_response" data-id="{{ cmid }}" disabled>
+            {{# str }} send_feedback, mod_tipcoll {{/str}}
+        </button>
+    </div>
+
 </div>
+{{#js}}
+    require(['mod_tipcoll/feedback'], function(feedback) {
+        feedback.initFeedback('[data-region="feedback-content"]', {{ cmid }});
+    });
+{{/js}}

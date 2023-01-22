@@ -70,7 +70,7 @@ class tipcoll_external extends external_api {
         );
 
         $tipcoll = new tipcoll($cmid);
-        $feedbackinstance = $tipcoll->get_feedback();
+        $feedbackinstance = $tipcoll->get_feedback()->get_instance();
 
         $error = '';
         $success = false;
@@ -203,6 +203,7 @@ class tipcoll_external extends external_api {
                                        array(
                                                'id'       => new external_value(PARAM_RAW, 'Response ID'),
                                                'order' => new external_value(PARAM_INT, 'Response Order'),
+                                               'questionid' => new external_value(PARAM_INT, 'Question ID'),
                                                'title' => new external_value(PARAM_TEXT, 'Response Title')
                                        )
                                    )

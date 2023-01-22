@@ -210,7 +210,7 @@ class tipcoll {
      * @throws moodle_exception
      */
     public function get_group_url(): string {
-        $url = new moodle_url('/mod/tipcoll/groups.php', ['id' => $this->course->id]);
+        $url = new moodle_url('/mod/tipcoll/view.php', ['id' => $this->course->id]);
         return $url->out(false);
     }
 
