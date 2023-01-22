@@ -84,12 +84,14 @@ class tipcoll_external extends external_api {
                         'deadline' => '',
                         'remain' => 0,
                         'already' => 0,
-                        'url' => '#',
+                        'group_url' => '#',
+                        'result_url' => '#',
                         'can_create_groups' => false
                 ],
                 'status_feedback' => [
                         'enabled' => false,
                         'deadline' => '',
+                        'firstid' => 0,
                         'questions' => []
                 ],
                 'status_completed' => [
@@ -134,6 +136,8 @@ class tipcoll_external extends external_api {
                             $status['enabled'] = true;
                             $status['deadline'] = $tipcoll->get_deadline();
                             $status['questions'] = $feedback->get_questions();
+                            $first = current($status['questions']);
+                            $status['firstid'] = isset($first) ? $first->id : 0;
                             $data['status_feedback'] = $status;
                             break;
                     }
@@ -145,7 +149,8 @@ class tipcoll_external extends external_api {
                     $status['deadline'] = $tipcoll->get_deadline();
                     $status['already'] = $tipcoll->get_feedback()->get_already();
                     $status['remain'] = $tipcoll->get_feedback()->get_remain();
-                    $status['url'] = $tipcoll->get_group_url();
+                    $status['result_url'] = $tipcoll->get_result_url();
+                    $status['group_url'] = $tipcoll->get_group_url();
                     $status['can_create_groups'] = $tipcoll->can_create_groups();
                     $data['teacher_data'] = $status;
                 }
@@ -186,16 +191,19 @@ class tipcoll_external extends external_api {
                         'deadline' => new external_value(PARAM_TEXT, 'Deadline'),
                         'remain' => new external_value(PARAM_INT, 'Users remain to be answered'),
                         'already' => new external_value(PARAM_INT, 'Users have answered'),
-                        'url' => new external_value(PARAM_RAW, 'URL')
+                        'result_url' => new external_value(PARAM_RAW, 'URL'),
+                        'group_url' => new external_value(PARAM_RAW, 'URL')
                     ), '', VALUE_OPTIONAL),
                     'status_feedback' => new external_single_structure(
                     array(
                        'enabled' => new external_value(PARAM_BOOL, 'Enabled?'),
                        'deadline' => new external_value(PARAM_TEXT, 'Deadline'),
+                       'firstid'  => new external_value(PARAM_INT, 'First Question ID'),
                        'questions' => new external_multiple_structure(
                            new external_single_structure(
                            array(
-                               'id'       => new external_value(PARAM_INT, 'Question ID'),
+                               'id'     => new external_value(PARAM_INT, 'Question ID'),
+                               'cmid'  => new external_value(PARAM_INT, 'CM ID'),
                                'order' => new external_value(PARAM_INT, 'Question Order'),
                                'title' => new external_value(PARAM_TEXT, 'Question Title'),
                                'responses' => new external_multiple_structure(

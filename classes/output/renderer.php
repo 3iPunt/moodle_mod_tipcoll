@@ -47,4 +47,16 @@ class renderer extends plugin_renderer_base {
         return parent::render_from_template('mod_tipcoll/courseview_component', $data);
     }
 
+    /**
+     * Defer to template.
+     *
+     * @param view_page $componet
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_view_page(view_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('mod_tipcoll/view_page', $data);
+    }
+
 }

@@ -4,7 +4,7 @@
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             {{# questions }}
                 <li class="nav-item">
-                    <a data-region="nav-item" class="nav-link" id="home-tab" data-toggle="tab" href="#q{{ id }}" role="tab" aria-controls="q{{ id }}" aria-selected="false">
+                    <a data-region="nav-item" class="nav-link" id="home-tab" data-toggle="tab" href="#q{{ cmid }}-{{ id }}" role="tab" aria-controls="q{{ cmid }}-{{ id }}" aria-selected="false">
                         {{ order }}
                     </a>
                 </li>
@@ -19,7 +19,7 @@
     <div class="modal-body">
 
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="q0" role="tabpanel" aria-labelledby="home-tab">
+            <div class="tab-pane fade show active" id="q{{ cmid }}-0" role="tabpanel" aria-labelledby="home-tab">
                 <h3 class="modal-title">
                     {{# str }} want_start, mod_tipcoll {{/str}}
                 </h3>
@@ -30,13 +30,13 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         {{# str }} cancel, mod_tipcoll {{/str}}
                     </button>
-                    <a type="button" data-action="start" class="btn btn-primary" data-toggle="tab" href="#q1" role="tab" aria-controls="q1">
+                    <a type="button" data-action="start" class="btn btn-primary" data-toggle="tab" href="#q{{ cmid }}-{{ firstid }}" role="tab" aria-controls="q{{ cmid }}-{{ id }}">
                         {{# str }} start, mod_tipcoll {{/str}}
                     </a>
                 </div>
             </div>
             {{# questions }}
-                <div class="tab-pane fade" id="q{{ id }}" role="tabpanel" aria-labelledby="profile-tab">
+                <div class="tab-pane fade" id="q{{ cmid }}-{{ id }}" role="tabpanel" aria-labelledby="profile-tab">
                     {{> mod_tipcoll/question_component }}
                 </div>
             {{/ questions }}

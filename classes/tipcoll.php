@@ -26,16 +26,20 @@ namespace mod_tipcoll;
 
 use cm_info;
 use coding_exception;
+use core_user;
 use course_enrolment_manager;
+use course_modinfo;
 use dml_exception;
 use mod_tipcoll\models\feedback;
+use mod_tipcoll\models\feedback_user;
 use moodle_exception;
 use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
-require_once($CFG->dirroot . '/lib/phpunit/classes/util.php');
+require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->dirroot . '/lib/modinfolib.php');
 
 /**
  * Class tipcoll
@@ -204,13 +208,24 @@ class tipcoll {
     }
 
     /**
+     * Get Result URL.
+     *
+     * @return string
+     * @throws moodle_exception
+     */
+    public function get_result_url(): string {
+        $url = new moodle_url('/mod/feedback/show_entries.php', ['id' => $this->get_feedback()->get_cm()->id]);
+        return $url->out(false);
+    }
+
+    /**
      * Get Group URL.
      *
      * @return string
      * @throws moodle_exception
      */
     public function get_group_url(): string {
-        $url = new moodle_url('/mod/tipcoll/view.php', ['id' => $this->course->id]);
+        $url = new moodle_url('/mod/tipcoll/view.php', ['id' => $this->cm->id]);
         return $url->out(false);
     }
 
@@ -237,6 +252,177 @@ class tipcoll {
                 $searchfilter = '', $groupfilter = 0, $statusfilter = -1);
         $students = $enrolmanager->get_users('id', 'ASC', 0, 0);
         return count($students);
+    }
+
+    /**
+     * Get Groups.
+     *
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_groups(): array {
+        $items = [];
+        $groups = groups_get_all_groups($this->course->id);
+        foreach ($groups as $gr) {
+            $idnumber = explode('_', $gr->idnumber);
+            if ($idnumber[0] === 'tipcoll') {
+                $groupcmid = (int)$idnumber[1];
+                if ($groupcmid === $this->get_cmid()) {
+                    $g = new stdClass();
+                    $g->id = $gr->id;
+                    $g->name = $gr->name;
+                    $g->members = $this->get_members_group($gr->id);
+                    $items[] = $g;
+                }
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * Get Members.
+     *
+     * @param int $groupid
+     * @return stdClass[]
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_members_group(int $groupid): array {
+        global $PAGE;
+        $items = [];
+        $members = groups_get_groups_members([$groupid]);
+        foreach ($members as $member) {
+            $user = core_user::get_user($member->id);
+            $tipcolluser = new tipcoll_user($this, $user);
+            $feedbackuser = new feedback_user($this->get_feedback(), $tipcolluser);
+            $userpicture = new \user_picture($user);
+            $userpicture->size = 1;
+            $participant = new stdClass();
+            $participant->id = $member->id;
+            $participant->picture = $userpicture->get_url($PAGE)->out(false);
+            $participant->fullname = fullname($user);
+            $participant->responses = $feedbackuser->get_responses();
+            $items[] = $participant;
+        }
+        return $items;
+    }
+
+    /**
+     * Create Group.
+     *
+     * @param string $name
+     * @return bool
+     * @throws moodle_exception
+     */
+    public function create_group(string $name): bool {
+        $data = new stdClass();
+        $data->name = $name;
+        $data->courseid = $this->course->id;
+        $data->id = (int)groups_create_group($data);
+        $data->idnumber = 'tipcoll_' . $this->get_cmid() . '_' . $data->id;
+        $res = groups_update_group($data);
+        $this->set_restriction_section();
+        return $res;
+    }
+
+    /**
+     * Delete Group.
+     *
+     * @param int $id
+     * @return bool
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function delete_group(int $id): bool {
+        $res = groups_delete_group($id);
+        $this->set_restriction_section();
+        return $res;
+    }
+
+    /**
+     * Set restriction section.
+     *
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    protected function set_restriction_section() {
+        global $DB;
+        $section = $this->cm->get_section_info();
+        $newsection = new stdClass();
+        $newsection->id = $section->id;
+        $newsection->course = $section->course;
+        $newsection->name = $section->name;
+        $newsection->summmary = $section->summary;
+        $newsection->summaryformat = $section->summaryformat;
+        $newsection->sequence = $section->sequence;
+        $newsection->visible = $section->visible;
+        $newsection->availability = json_encode($this->get_availability());
+        $newsection->timemodified = time();
+        $DB->update_record('course_sections', $newsection);
+        course_modinfo::clear_instance_cache($this->get_course());
+        rebuild_course_cache($this->get_course()->id);
+    }
+
+    /**
+     * Get Availability.
+     *
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_availability(): stdClass {
+        $groupstipcoll = [];
+        foreach ($this->get_groups() as $g) {
+            $gr = new stdClass();
+            $gr->type = 'group';
+            $gr->id = (int)$g->id;
+            $groupstipcoll[] = $gr;
+        }
+        $date = new stdClass();
+        $date->type = 'date';
+        $date->d = '<';
+        $date->t = (int)$this->get_deadline_timestamp();
+        $groupstipcoll[] = $date;
+
+        $groupscond = new stdClass();
+        $groupscond->op = '|';
+        $groupscond->c = $groupstipcoll;
+        $groups = [$groupscond];
+        $newavaliability = new stdClass();
+        $newavaliability->op = '&';
+        $newavaliability->c = $groups;
+        $newavaliability->showc = [false];
+        return $newavaliability;
+    }
+
+    /**
+     * Get Availability Default.
+     *
+     * @param int $time
+     * @return stdClass
+     */
+    static public function get_availability_default(int $time): stdClass {
+        $groupstipcoll = [];
+        $date = new stdClass();
+        $date->type = 'date';
+        $date->d = '<';
+        $date->t = $time;
+        $groupstipcoll[] = $date;
+        $groupscond = new stdClass();
+        $groupscond->op = '|';
+        $groupscond->c = $groupstipcoll;
+        $groups = [$groupscond];
+        $newavaliability = new stdClass();
+        $newavaliability->op = '&';
+        $newavaliability->c = $groups;
+        $newavaliability->showc = [false];
+        return $newavaliability;
     }
 
 }

@@ -20,6 +20,7 @@
  */
 
 use mod_tipcoll\external\feedback_external;
+use mod_tipcoll\external\group_external;
 use mod_tipcoll\external\tipcoll_external;
 
 defined('MOODLE_INTERNAL') || die();
@@ -41,12 +42,39 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_tipcoll_group_create' => [
+        'classname' => group_external::class,
+        'methodname' => 'create',
+        'description' => 'Group > Create Group',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_tipcoll_group_delete' => [
+        'classname' => group_external::class,
+        'methodname' => 'delete',
+        'description' => 'Group > Delete Group',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_tipcoll_group_assign' => [
+        'classname' => group_external::class,
+        'methodname' => 'assign',
+        'description' => 'Group > Assign group to user',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
 ];
 $services = [
     'mod_tipcoll' => [
         'functions' => [
             'mod_tipcoll_feedback',
             'mod_tipcoll_response_question_feedback',
+            'mod_tipcoll_group_create',
+            'mod_tipcoll_group_delete',
+            'mod_tipcoll_group_assign',
         ],
         'restrictedusers' => 0,
         'enabled' => 1

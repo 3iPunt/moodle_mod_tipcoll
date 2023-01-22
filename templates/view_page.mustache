@@ -1,0 +1,407 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template mod_tipcoll/view_page
+
+
+}}
+<div data-region="mod_tipcoll-view-page" data-cmid="{{ cmid }}">
+
+    {{# is_teacher }}
+
+        <h3 class="create-groups">{{# str }} create_group, mod_tipcoll {{/str}}</h3>
+
+        <p class="desc">{{# str }} create_group_desc, mod_tipcoll {{/str}}</p>
+
+        <div class="view-content">
+
+            <div class="card-header participants">
+                <h4 class="subtitle">{{# str }} students {{/str}}</h4>
+                <div class="questions">
+                    {{# questions }}
+                    <div class="question">
+                        <span class="qid" style="background-color: {{ color }}">{{ order }}</span>
+                        <span class="name">{{ title }}</span>
+                        <select class="form-control form-control-sm filter">
+                            <option value="0">Filtrar</option>
+                            {{# responses }}
+                            <option value="{{ order }}">{{ title }}</option>
+                            {{/ responses }}
+                        </select>
+                    </div>
+                    {{/ questions }}
+                </div>
+            </div>
+
+            <div class="card-header groups">
+                <h4 class="subtitle">{{# str }} groups {{/str}}</h4>
+
+                <div class="data">
+                    <div class="dato">
+                        <span class="label">{{# str }} students {{/str}}: </span><span class="value">{{ numparticipants }}</span>
+                    </div>
+                    <div class="dato">
+                        <span class="label">{{# str }} groups {{/str}}: </span><span class="value">{{ numgroups }}</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-body participants">
+
+                {{# participants }}
+                <div class="participant">
+
+                    <div class="userdata">
+                        <div class="picture"><img class="" src="{{ picture }}" alt=""></div>
+                        <div class="name">{{ fullname }}</div>
+                    </div>
+                    <div class="responses">
+                        {{# responses }}
+                        <div class="response">
+                            <span class="order" style="background-color: {{ color }}; cursor: pointer" data-toggle="tooltip" data-placement="bottom" title="{{ qtitle }}">{{ qorder }}</span>
+                            <span class="title">{{ response }}</span>
+                        </div>
+                        {{/ responses }}
+                    </div>
+                    <select class="form-control form-control-sm action-group {{# ingroup }}ingroup{{/ ingroup }}" data-action="assign-group" data-userid="{{ id }}">
+                        <option value="0">{{# str }} not_assign, mod_tipcoll {{/str}}</option>
+                        {{# groups }}
+                            <option value="{{ id }}" {{# selected }}selected{{/selected}}>{{ name }}</option>
+                        {{/ groups }}
+                    </select>
+
+                </div>
+                {{/ participants }}
+            </div>
+
+            <div class="card-body groups">
+
+                {{# groups }}
+
+                    <div class="group">
+
+                        <div class="group-name">{{ name }}</div>
+
+                        <div class="members">
+                            {{# members }}
+                                <div class="participant">
+
+                                    <div class="userdata">
+                                        <div class="picture"><img class="" src="{{ picture }}" alt=""></div>
+                                        <div class="name">{{ fullname }}</div>
+                                    </div>
+                                    <div class="responses">
+                                        {{# responses }}
+                                            <div class="response">
+                                                <span class="order" style="background-color: {{ color }}; cursor: pointer" data-toggle="tooltip" data-placement="bottom" title="{{ qtitle }}">{{ qorder }}</span>
+                                                <span class="title">{{ response }}</span>
+                                            </div>
+                                        {{/ responses }}
+                                    </div>
+
+                                </div>
+                            {{/ members }}
+                        </div>
+
+                    </div>
+
+                    <div class="delete-group">
+
+                        <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#deleteGroup-{{ id }}">
+                            <span class="title">{{# str }} delete_group, mod_tipcoll {{/str}}</span>
+                        </button>
+
+                        <div class="modal fade" id="deleteGroup-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="deleteGroup-{{ id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">{{# str }} delete_group, mod_tipcoll {{/str}}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h4 class="quiz">{{# str }} delete_group_quiz, mod_tipcoll {{/str}}</h4>
+                                        <h5 class="groupname">{{ name }}</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            {{# str }} cancel, mod_tipcoll {{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-primary" data-action="delete-group" data-groupid="{{ id }}">
+                                            {{# str }} delete_group, mod_tipcoll {{/str}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {{/ groups }}
+
+                <div class="create-group">
+
+                    <button type="button" class="btn btn-primary create-new-group" data-toggle="modal" data-target="#createGroup">
+                        {{#pix}} icons/already, mod_tipcoll {{/pix}}
+                        <span class="title">{{# str }} create_new_group, mod_tipcoll {{/str}}</span>
+                    </button>
+
+                    <div class="modal fade" id="createGroup" tabindex="-1" role="dialog" aria-labelledby="createGroupLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">{{# str }} create_new_group, mod_tipcoll {{/str}}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="form-create-group">
+                                        <div class="form-group">
+                                            <label for="name">{{# str }} create_new_group_name, mod_tipcoll {{/str}}</label>
+                                            <input type="text" class="form-control" id="name" placeholder="{{# str }} create_new_group_name_placeholder, mod_tipcoll {{/str}}">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                        {{# str }} cancel, mod_tipcoll {{/str}}
+                                    </button>
+                                    <button type="button" class="btn btn-primary" disabled data-action="create-group">
+                                        {{# str }} create_new_group, mod_tipcoll {{/str}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/is_teacher}}
+
+</div>
+<style>
+
+    div[data-region="mod_tipcoll-view-page"] .view-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 15px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-header {
+        border: 1px solid #000000;
+        border-radius: 4px;
+        background-color: white;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 10px 15px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions .question {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions .question span.name{
+        width: 100%;
+        margin-left: 5px;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions .question select.filter {
+        max-width: 117px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions .question span.qid {
+        background-color: black;
+        width: 18px;
+        height: 18px;
+        color: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        min-width: 18px;
+        padding: 0 0 1px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .groups .data {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-gap: 13px 15px;
+        margin-top: 11px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .groups .data .value {
+        font-weight: bold;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants {
+        width: 100%;
+        padding: 0;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #9594A7;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        padding: 5px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .picture img,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant .picture img {
+        width: 36px;
+        height: 36px;
+        border-radius: 40px;
+        margin-left: 5px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .userdata,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant .userdata {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .name,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant .name {
+        font-weight: 700;
+        font-size: 13px;
+        line-height: 16px;
+        margin-left: 10px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant select.action-group,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant select.action-group {
+        max-width: 130px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant select.action-group.ingroup {
+        background-color: black;
+        color: white;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .responses,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .responses {
+        display: flex;
+        align-items: center;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .responses .response,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant .responses .response {
+        display: flex;
+        align-items: center;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .responses .response .order,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant .responses .response .order {
+        background-color: black;
+        width: 18px;
+        height: 18px;
+        color: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        min-width: 18px;
+        padding: 0 0 1px;
+        margin-right: 5px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.participants .participant .responses .response .title,
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .members .participant .responses .response .title {
+        margin-right: 10px;
+        font-size: 13px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups {
+        padding: 0;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .group {
+        background: #FFFFFF;
+        border: 1px solid #333333;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .group .group-name {
+        background-color: black;
+        color: white;
+        padding: 5px 10px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .group .members {
+        padding: 10px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups button.create-new-group {
+        border: 1px dashed #9B9B9B;
+        border-radius: 8px;
+        background-color: white;
+        width: 100%;
+        height: 53px;
+        color: black;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .delete-group {
+        display: flex;
+        justify-content: right;
+        position: relative;
+        top: -13px;
+    }
+
+</style>
+
+{{#js}}
+    $(document).ready(function () {
+        require(['mod_tipcoll/groups'], function(groups) {
+            groups.initGroups('[data-region="mod_tipcoll-view-page"]', {{ cmid }});
+        });
+
+        require(['mod_tipcoll/filters'], function(filters) {
+            filters.initFilters('[data-region="mod_tipcoll-view-page"]', {{ cmid }});
+        });
+
+    });
+
+{{/js}}

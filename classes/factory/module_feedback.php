@@ -82,10 +82,14 @@ class module_feedback extends module {
         ];
         $options = [
             'section' => $section,
-            'visible' => true,
+            'visible' => false,
             'showdescription' => 0
         ];
-        return $this->generator->create_instance($record, $options);
+        $res = $this->generator->create_instance($record, $options);
+
+        // TODO. create questions and responses.
+
+        return $res;
     }
 
 }

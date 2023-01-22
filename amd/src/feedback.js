@@ -154,7 +154,7 @@ define([
         };
 
         Feedback.prototype.onSendResponseClick = function (e) {
-            this.node.find(ACTION.SEND_RESPONSE).attr('disabled');
+            this.node.find(ACTION.SEND_RESPONSE).attr('disabled', true);
             const response = this.getResponse();
             const request = {
                 methodname: SERVICES.RESPONSE,

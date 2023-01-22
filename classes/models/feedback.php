@@ -26,15 +26,20 @@ namespace mod_tipcoll\models;
 
 use cm_info;
 use coding_exception;
+use core_user;
 use dml_exception;
 use invalid_parameter_exception;
 use mod_feedback\external\feedback_item_exporter;
+use mod_feedback_completion;
 use mod_feedback_external;
+use mod_feedback_responses_table;
 use mod_feedback_structure;
 use mod_tipcoll\tipcoll;
+use mod_tipcoll\tipcoll_user;
 use moodle_exception;
 use moodle_url;
 use stdClass;
+use tool_brickfield\local\areas\core_course\fullname;
 
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
@@ -49,6 +54,10 @@ require_once($CFG->dirroot . '/lib/phpunit/classes/util.php');
  */
 class feedback {
 
+    const COLOUR = [
+            '#7FBF3F', '#BF3F3F', '#B36B0E', '#0EB36B', '#190EB3', '#5F93AE', '#5B3FBF'
+    ];
+
     /** @var stdClass Course */
     protected $course;
 
@@ -60,6 +69,9 @@ class feedback {
 
     /** @var tipcoll TipColl */
     protected $tipcoll;
+
+    /** @var stdClass[] Participants */
+    protected $participants;
 
     /** @var int Remain */
     protected $remain;
@@ -118,8 +130,10 @@ class feedback {
             foreach ($questions as $q) {
                 $item = new stdClass();
                 $item->id = $q->id;
+                $item->cmid = $this->tipcoll->get_cmid();
                 $item->order = $order;
                 $item->title = $q->name;
+                $item->color = self::COLOUR[$order];
                 $item->responses = $this->get_responses($q->presentation, $q->id);
                 $items[] = $item;
                 $order ++;
@@ -161,10 +175,58 @@ class feedback {
      *
      * @return int
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public function get_already(): int {
-        $total = $this->tipcoll->get_total_students();
-        return $total - $this->get_remain();
+        return count($this->get_participants());
+    }
+
+    /**
+     * Get Participants.
+     *
+     * @return stdClass[]
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_participants(): array {
+        if (is_null($this->participants)) {
+            $this->set_participants();
+        }
+        return $this->participants;
+    }
+
+    /**
+     * Set Participants.
+     *
+     * @throws dml_exception
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    protected function set_participants(){
+        global $DB, $PAGE;
+        $completedtotal =  $DB->get_records('feedback_completed', ['feedback' => $this->get_id()]);
+        $userids = [];
+        foreach ($completedtotal as $comp) {
+            $userids[] = $comp->userid;
+        }
+        $userids = array_unique($userids);
+        $this->participants = [];
+        foreach ($userids as $userid) {
+            $user = core_user::get_user($userid);
+            $tipcolluser = new tipcoll_user($this->tipcoll, $user);
+            $feedbackuser = new feedback_user($this, $tipcolluser);
+            $userpicture = new \user_picture($user);
+            $userpicture->size = 1;
+            $participant = new stdClass();
+            $participant->id = $userid;
+            $participant->picture = $userpicture->get_url($PAGE)->out(false);
+            $participant->fullname = fullname($user);
+            $participant->responses = $feedbackuser->get_responses();
+            $participant->groups = $tipcolluser->get_groups();
+            $participant->ingroup = !empty($tipcolluser->get_group());
+            $this->participants[] = $participant;
+        }
     }
 
     /**

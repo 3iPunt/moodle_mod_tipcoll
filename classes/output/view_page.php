@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * courseview_component
+ * view_page
  *
  * @package     mod_tipcoll
- * @copyright   2022 Tresipunt - Antonio Manzano <contacte@tresipunt.com>
+ * @copyright   2023 Tresipunt - Antonio Manzano <contacte@tresipunt.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,6 +28,7 @@ use cm_info;
 use coding_exception;
 use dml_exception;
 use mod_tipcoll\tipcoll;
+use mod_tipcoll\tipcoll_user;
 use moodle_exception;
 use renderable;
 use renderer_base;
@@ -35,34 +36,28 @@ use stdClass;
 use templatable;
 
 /**
- * courseview_component renderable class.
+ * view_page renderable class.
  *
  * @package     mod_tipcoll
  * @copyright   2022 Tresipunt - Antonio Manzano <contacte@tresipunt.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class courseview_component implements renderable, templatable {
+class view_page implements renderable, templatable {
 
     /** @var int Course Module ID */
     protected $cmid;
 
-    /** @var stdClass Course Module */
+    /** @var cm_info Course Module */
     protected $cm;
-
-    /** @var stdClass Instance */
-    protected $instance;
 
     /**
      * view_page constructor.
      *
-     * @param int $cmid
-     * @throws moodle_exception
+     * @param cm_info $cm
      */
-    public function __construct(int $cmid) {
-        global $DB;
-        $this->cmid = $cmid;
-        $this->cm = $DB->get_record('course_modules', array( 'id' => $cmid ));
-        $this->instance = $DB->get_record('tipcoll', array( 'id' => $this->cm->instance ));
+    public function __construct(cm_info $cm) {
+        $this->cmid = $cm->id;
+        $this->cm = $cm;
     }
 
     /**
@@ -70,13 +65,25 @@ class courseview_component implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws coding_exception
-     * @throws moodle_exception
+     * @throws dml_exception|moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
+
+        $tipcoll = new tipcoll($this->cmid);
+        $tipcolluser = new tipcoll_user($tipcoll, $USER);
+
+        $groups = $tipcoll->get_groups();
+        $participants = $tipcoll->get_feedback()->get_participants();
+
         $data = new stdClass();
-        $data->title = get_string('welcome', 'mod_tipcoll');
         $data->cmid = $this->cmid;
+        $data->is_teacher = $tipcolluser->is_teacher();
+        $data->questions = $tipcoll->get_feedback()->get_questions();
+        $data->numparticipants = count($participants);
+        $data->numgroups = count($groups);
+        $data->participants = $participants;
+        $data->groups = $groups;
         return $data;
     }
 

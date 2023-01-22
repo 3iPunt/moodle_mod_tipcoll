@@ -59,8 +59,9 @@ class section {
         $section = course_create_section($moduleinstance->course);
         $data = new stdClass();
         $data->name = $moduleinstance->name;
-        $data->summary = $moduleinstance->intro;
+        $data->summary = '';
         $data->summaryformat = FORMAT_HTML;
+        $data->availability = json_encode(tipcoll::get_availability_default($moduleinstance->feedback_deadline));
         course_update_section($section->course, $section, $data);
         return $section;
     }

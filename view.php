@@ -76,6 +76,10 @@ $PAGE->requires->css('/mod/tipcoll/styles.css');
 echo $OUTPUT->header();
 $output = $PAGE->get_renderer('mod_tipcoll');
 
+list($course, $cm) = get_course_and_cm_from_cmid($cm->id);
+
+$page = new \mod_tipcoll\output\view_page($cm);
+echo $output->render($page);
 
 echo $OUTPUT->footer();
 

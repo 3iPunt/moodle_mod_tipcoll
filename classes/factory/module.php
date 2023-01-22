@@ -142,9 +142,10 @@ abstract class module {
         }
 
         // Create Feedback.
+        // TODO. review. intro y title.
         $factfeedback = new module_feedback();
         $feedinstance = $factfeedback->create_questionnaire(
-            $moduleinstance, 'Encuesta', 'sfasdfsaf ñljsfdsf', $section);
+            $moduleinstance, 'Encuesta', '', $section);
 
         // Create Activities.
         for ($i = 1; $i <= $numactivities; $i++) {

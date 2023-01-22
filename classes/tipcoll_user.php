@@ -24,9 +24,9 @@
 
 namespace mod_tipcoll;
 
-use cm_info;
 use coding_exception;
 use context_course;
+use core_user;
 use dml_exception;
 use mod_tipcoll\models\feedback_user;
 use moodle_exception;
@@ -34,7 +34,6 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
-require_once($CFG->dirroot . '/lib/phpunit/classes/util.php');
 
 /**
  * Class tipcoll_user
@@ -68,6 +67,24 @@ class tipcoll_user {
     }
 
     /**
+     * Get User.
+     *
+     * @return stdClass
+     */
+    public function get_user(): stdClass {
+        return $this->user;
+    }
+
+    /**
+     * Get Group.
+     *
+     * @return stdClass
+     */
+    public function get_group(): ?stdClass {
+        return $this->group;
+    }
+
+    /**
      * Get Status.
      *
      * @return string
@@ -97,10 +114,12 @@ class tipcoll_user {
         foreach ($groups as $gr) {
             $group = groups_get_group($gr);
             $idnumber = explode('_', $group->idnumber);
-            $groupcmid = (int)$idnumber[1];
-            if ($groupcmid === $this->tipcoll->get_cmid()) {
-                $this->group = $group;
-                break;
+            if ($idnumber[0] === 'tipcoll') {
+                $groupcmid = (int)$idnumber[1];
+                if ($groupcmid === $this->tipcoll->get_cmid()) {
+                    $this->group = $group;
+                    break;
+                }
             }
         }
     }
@@ -168,6 +187,45 @@ class tipcoll_user {
             }
         }
         return false;
+    }
+
+    /**
+     * Assign user to Group.
+     *
+     * @param int $groupid
+     * @return bool
+     * @throws coding_exception
+     */
+    public function assign_group(int $groupid): bool {
+        $res = true;
+        if (!empty($this->group)) {
+            $res = groups_remove_member($this->group->id, $this->user->id);
+        }
+        if ($groupid !== 0) {
+            $res = groups_add_member($groupid, $this->user->id);
+        }
+        return $res;
+
+    }
+
+    /**
+     * Get Groups by user.
+     *
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_groups(): array {
+        $items = [];
+        foreach ($this->tipcoll->get_groups() as $group) {
+            $item = new stdClass();
+            $item->id = $group->id;
+            $item->name = $group->name;
+            $item->selected = ($group->id === $this->group->id);
+            $items[] = $item;
+        }
+        return $items;
     }
 
 }

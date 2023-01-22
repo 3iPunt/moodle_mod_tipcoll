@@ -97,7 +97,7 @@
                 <div class="act-buttons">
                     <div class="item view-result">
                         <span class="title">{{# str }} show_response, mod_tipcoll {{/str}}</span>
-                        <a href="{{ url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <a href="{{ result_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
                             {{# str }} view_result, mod_tipcoll {{/str}}
                         </a>
                     </div>
@@ -113,7 +113,7 @@
                         {{^ can_create_groups }}
                             <span class="title">
                             {{# str }} can_create_groups, mod_tipcoll {{/str}}:</span>
-                            <a href="{{ url }}" target="_blank"  class="btn btn-outline-primary btn-sm">
+                            <a href="{{ group_url }}" target="_blank"  class="btn btn-outline-primary btn-sm">
                                 {{# str }} create_group, mod_tipcoll {{/str}}
                             </a>
                         {{/ can_create_groups }}
@@ -231,6 +231,7 @@
         align-items: center;
         justify-content: center;
         width: 100%;
+        min-width: 225px;
     }
     div[data-region="mod_tipcoll"] .actions-teacher .data .dato {
         background: #FFFFFF;
@@ -239,7 +240,7 @@
         height: 39px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         padding: 16px;
         font-size: 12px;
         width: 100%;
@@ -274,7 +275,7 @@
         text-align: center;
         font-size: 14px;
         padding: 10px;
-        width: 250px;
+        width: 220px;
     }
     div[data-region="mod_tipcoll"] .actions-teacher .act-buttons .item.create-group {
         border-left: 1px solid #e1e1e1;
