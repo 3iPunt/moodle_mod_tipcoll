@@ -73,18 +73,51 @@ class view_page implements renderable, templatable {
         $tipcoll = new tipcoll($this->cmid);
         $tipcolluser = new tipcoll_user($tipcoll, $USER);
 
+        $questions = $tipcoll->get_feedback()->get_questions();
         $groups = $tipcoll->get_groups();
         $participants = $tipcoll->get_feedback()->get_participants();
+
+        $participants = $this->filter_participants($participants, $questions);
 
         $data = new stdClass();
         $data->cmid = $this->cmid;
         $data->is_teacher = $tipcolluser->is_teacher();
-        $data->questions = $tipcoll->get_feedback()->get_questions();
+        $data->questions = $questions;
         $data->numparticipants = count($participants);
         $data->numgroups = count($groups);
         $data->participants = $participants;
         $data->groups = $groups;
         return $data;
+    }
+
+    /**
+     * Filter Participants.
+     *
+     * @param array $participants
+     * @param array $questions
+     * @return mixed
+     * @throws coding_exception
+     */
+    protected function filter_participants(array $participants, array $questions): array {
+        $newparticipants = [];
+        $qp = [];
+        foreach ($questions as $quiz) {
+            $qp[$quiz->id] = optional_param('qid-' . $quiz->id, null, PARAM_INT);
+        }
+        foreach ($participants as $p) {
+            $filter = true;
+            foreach ($p->responses as $resp) {
+                if (!is_null($qp[(int)$resp->qid])) {
+                    if ($resp->rid !== $qp[(int)$resp->qid]) {
+                        $filter = false;
+                    }
+                }
+            }
+            if ($filter) {
+                $newparticipants[] = $p;
+            }
+        }
+        return $newparticipants;
     }
 
 }

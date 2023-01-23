@@ -36,10 +36,10 @@
                     <div class="question">
                         <span class="qid" style="background-color: {{ color }}">{{ order }}</span>
                         <span class="name">{{ title }}</span>
-                        <select class="form-control form-control-sm filter">
-                            <option value="0">Filtrar</option>
+                        <select class="form-control form-control-sm filter {{# infilter }}infilter{{/ infilter }}" data-action="filter-response" data-qid="{{ id }}">
+                            <option value="0">{{# str }} filter_response, mod_tipcoll {{/str}}</option>
                             {{# responses }}
-                            <option value="{{ order }}">{{ title }}</option>
+                            <option value="{{ order }}" {{# selected }}selected{{/selected}}>{{ title }}</option>
                             {{/ responses }}
                         </select>
                     </div>
@@ -232,6 +232,11 @@
         max-width: 117px;
         font-size: 12px;
         cursor: pointer;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions .question select.filter.infilter {
+        background-color: #efefef;
+        border: 2px solid black;
     }
 
     div[data-region="mod_tipcoll-view-page"] .view-content .participants .questions .question span.qid {

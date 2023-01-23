@@ -41,7 +41,7 @@ define([
          *
          */
         let ACTION = {
-            CREATE_GROUP: '[data-action="filter-participant"]',
+            FILTER: '[data-action="filter-response"]',
         };
 
         /**
@@ -53,8 +53,20 @@ define([
         function Filters(region, cmid) {
             this.node = $(region);
             this.cmid = cmid;
-            console.log('Filters...');
+            this.node.find(ACTION.FILTER).on('change', this.onFilterClick.bind(this));
         }
+
+        Filters.prototype.onFilterClick = function (e) {
+            let rid = $(e.currentTarget).val();
+            let qid = $(e.currentTarget).data('qid');
+            const urlParams = new URLSearchParams(window.location.search);
+            if (parseInt(rid) === 0) {
+                urlParams.delete('qid-' + qid);
+            } else {
+                urlParams.set('qid-' + qid, rid);
+            }
+            window.location.search = urlParams;
+        };
 
         /** @type {jQuery} The jQuery node for the region. */
         Filters.prototype.node = null;

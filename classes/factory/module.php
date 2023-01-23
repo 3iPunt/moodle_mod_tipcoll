@@ -147,15 +147,6 @@ abstract class module {
         $feedinstance = $factfeedback->create_questionnaire(
                 $moduleinstance, get_config('feedback', 'pluginname'), '', $section);
 
-        // Create TIP Coll.
-        $moduleinstance->timecreated = time();
-        $moduleinstance->cmids = implode(',', $activities);
-        $moduleinstance->feedbackid = $feedinstance->cmid;
-        $moduleinstance->cmdata = json_encode($activitiesdata);
-        $moduleinstance->showdescription = 1;
-        $moduleinstance->section = $section;
-        $res = $DB->insert_record('tipcoll', $moduleinstance);
-
         // Create Activities.
         for ($i = 1; $i <= $numactivities; $i++) {
             $modname = get_config('tipcoll', 'activity_type_' . $i);
@@ -166,7 +157,15 @@ abstract class module {
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
         }
-        return $res;
+
+        // Create TIP Coll.
+        $moduleinstance->timecreated = time();
+        $moduleinstance->cmids = implode(',', $activities);
+        $moduleinstance->feedbackid = $feedinstance->cmid;
+        $moduleinstance->cmdata = json_encode($activitiesdata);
+        $moduleinstance->showdescription = 1;
+        $moduleinstance->section = $section;
+        return $DB->insert_record('tipcoll', $moduleinstance);
     }
 
     /**

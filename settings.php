@@ -79,5 +79,75 @@ if ($ADMIN->fulltree) {
         ));
     }
 
+    $settings->add($numactivities);
+
+    $settings->add(new admin_setting_heading(
+            'tipcoll/feedback',
+            get_string('feedback', 'mod_tipcoll'),
+            get_string('feedback_help', 'mod_tipcoll')));
+
+    $feedbackq1 = new admin_setting_configtext(
+            'tipcoll/feedbackq1',
+            new lang_string('feedbackq1', 'mod_tipcoll'),
+            '',
+            get_string('feedbackq1_q', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackq1);
+
+    $feedbackr1 = new admin_setting_configtext(
+            'tipcoll/feedbackr1',
+            new lang_string('feedbackr1', 'mod_tipcoll'),
+            new lang_string('feedbackr_help', 'mod_tipcoll'),
+            get_string('feedbackq1_r', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackr1);
+
+    $feedbackq2 = new admin_setting_configtext(
+            'tipcoll/feedbackq2',
+            new lang_string('feedbackq2', 'mod_tipcoll'),
+            '',
+            get_string('feedbackq2_q', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackq2);
+
+    $feedbackr2 = new admin_setting_configtext(
+            'tipcoll/feedbackr2',
+            new lang_string('feedbackr2', 'mod_tipcoll'),
+            new lang_string('feedbackr_help', 'mod_tipcoll'),
+            get_string('feedbackq2_r', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackr2);
+
+    $feedbackq3 = new admin_setting_configtext(
+            'tipcoll/feedbackq3',
+            new lang_string('feedbackq3', 'mod_tipcoll'),
+            '',
+            get_string('feedbackq3_q', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackq3);
+
+    $feedbackr3 = new admin_setting_configtext(
+            'tipcoll/feedbackr3',
+            new lang_string('feedbackr3', 'mod_tipcoll'),
+            new lang_string('feedbackr_help', 'mod_tipcoll'),
+            get_string('feedbackq3_r', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackr3);
+
+    $feedbackq4 = new admin_setting_configtext(
+            'tipcoll/feedbackq4',
+            new lang_string('feedbackq4', 'mod_tipcoll'),
+            '',
+            get_string('feedbackq4_q', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackq4);
+
+    $feedbackr4 = new admin_setting_configtext(
+            'tipcoll/feedbackr4',
+            new lang_string('feedbackr4', 'mod_tipcoll'),
+            new lang_string('feedbackr_help', 'mod_tipcoll'),
+            get_string('feedbackq4_r', 'mod_tipcoll'), PARAM_TEXT
+    );
+    $settings->add($feedbackr4);
 
 }

@@ -41,29 +41,6 @@ use stdClass;
  */
 class module_feedback extends module {
 
-    const QUESTIONS = [
-            [
-                    'name' => '¿Cuando podrías participar en el curso?',
-                    'label' => 'WHEN',
-                    'presentation' => 'r>>>>>Mañanas|Tardes|Noches'
-            ],
-            [
-                    'name' => '¿Cual es tu lengua nativa?',
-                    'label' => 'WHICH',
-                    'presentation' => 'r>>>>>Español|Inglés|Francés|Mandarín'
-            ],
-            [
-                    'name' => '¿Que lengua quiero aprender?',
-                    'label' => 'WHAT',
-                    'presentation' => 'r>>>>>Español|Inglés|Francés|Mandarín'
-            ],
-            [
-                    'name' => '¿Qué rol quiero tener?',
-                    'label' => 'WHEN',
-                    'presentation' => 'r>>>>>Aprendiz|Nativo|Ambos'
-            ],
-    ];
-
     /** @var string Mod Name */
     protected $modname = 'feedback';
 
@@ -115,6 +92,60 @@ class module_feedback extends module {
     }
 
     /**
+     * Get Questions.
+     *
+     * @return string[][]
+     * @throws dml_exception
+     */
+    protected function get_questions(): array {
+        return [
+                [
+                        'name' => $this->get_config('feedbackq1'),
+                        'label' => 'Q1',
+                        'presentation' => 'r>>>>>' . $this->get_responses('feedbackr1')
+                ],
+                [
+                        'name' => $this->get_config('feedbackq2'),
+                        'label' => 'Q2',
+                        'presentation' => 'r>>>>>' . $this->get_responses('feedbackr2')
+                ],
+                [
+                        'name' => $this->get_config('feedbackq3'),
+                        'label' => 'Q3',
+                        'presentation' => 'r>>>>>' . $this->get_responses('feedbackr3')
+                ],
+                [
+                        'name' => $this->get_config('feedbackq4'),
+                        'label' => 'Q4',
+                        'presentation' => 'r>>>>>' . $this->get_responses('feedbackr4')
+                ],
+        ];
+    }
+
+    /**
+     * Get Config.
+     *
+     * @param $name
+     * @return false|mixed|object|string
+     * @throws dml_exception
+     */
+    protected function get_config(string $name) {
+        return get_config('tipcoll', $name) ? get_config('tipcoll', $name) : '-';
+    }
+
+    /**
+     * Get Config.
+     *
+     * @param $name
+     * @return false|mixed|object|string
+     * @throws dml_exception
+     */
+    protected function get_responses(string $name) {
+        $config = $this->get_config($name);
+        return str_replace(',', '|', $config);
+    }
+
+    /**
      * Create Questions.
      *
      * @param stdClass $feedback
@@ -123,7 +154,7 @@ class module_feedback extends module {
     protected function create_questions(stdClass $feedback) {
         global $DB;
         $position = 1;
-        foreach (self::QUESTIONS as $quiz) {
+        foreach ($this->get_questions() as $quiz) {
             $record = array(
                             'feedback' => $feedback->id,
                             'template' => 0,

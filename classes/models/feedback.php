@@ -135,6 +135,7 @@ class feedback {
                 $item->title = $q->name;
                 $item->color = self::COLOUR[$order];
                 $item->responses = $this->get_responses($q->presentation, $q->id);
+                $item->infilter = $this->in_filter($q->id);
                 $items[] = $item;
                 $order ++;
             }
@@ -148,6 +149,7 @@ class feedback {
      * @param string $presentation
      * @param int $qid
      * @return array
+     * @throws coding_exception
      */
     public function get_responses(string $presentation, int $qid): array {
         $answers = str_replace('r>>>>>', '', $presentation);
@@ -164,10 +166,36 @@ class feedback {
             $item->questionid = $qid;
             $item->order = $order;
             $item->title = $resp;
+            $item->selected = $this->resp_selected($qid, $order);
             $items[] = $item;
             $order ++;
         }
         return $items;
+    }
+
+    /**
+     * Response selected.
+     *
+     * @param int $qid
+     * @param int $rid
+     * @return bool
+     * @throws coding_exception
+     */
+    protected function resp_selected(int $qid, int $rid): bool {
+        $rfilter = optional_param('qid-' . $qid, null, PARAM_INT);
+        return $rfilter === $rid;
+    }
+
+    /**
+     * In filter?
+     *
+     * @param int $qid
+     * @return bool
+     * @throws coding_exception
+     */
+    protected function in_filter(int $qid) {
+        $value = optional_param('qid-' . $qid, null, PARAM_INT);
+        return !empty($value);
     }
 
     /**

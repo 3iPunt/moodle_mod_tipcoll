@@ -134,7 +134,9 @@ class feedback_user {
                 $item->qorder = $question->order;
                 $item->color = $question->color;
                 $item->qtitle = $question->title;
-                $item->response = $this->get_response($question->id, $lastcompleted, $question->responses);
+                $item->qid = $question->id;
+                $item->response = $this->get_response($question->id, $lastcompleted, $question->responses)['title'];
+                $item->rid = $this->get_response($question->id, $lastcompleted, $question->responses)['id'];
                 $items[] = $item;
             }
         }
@@ -147,10 +149,10 @@ class feedback_user {
      * @param int $qid
      * @param stdClass $lastcompleted
      * @param stdClass[] $questionresponses
-     * @return string
+     * @return string[]
      * @throws dml_exception
      */
-    public function get_response(int $qid, stdClass $lastcompleted, array $questionresponses): string {
+    public function get_response(int $qid, stdClass $lastcompleted, array $questionresponses): array {
         global $DB;
         $response = $DB->get_record('feedback_value',
                 ['completed' => $lastcompleted->id, 'item' => $qid]);
@@ -158,11 +160,11 @@ class feedback_user {
         if (!is_null($value)) {
             foreach ($questionresponses as $resp) {
                 if ($resp->order === $value) {
-                    return $resp->title;
+                    return ['id' => $resp->order, 'title' => $resp->title];
                 }
             }
         }
-        return '-';
+        return ['id' => 0, 'title' => '-'];
     }
 
 }
