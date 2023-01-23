@@ -24,6 +24,7 @@
 
 use mod_tipcoll\factory\module;
 use mod_tipcoll\output\courseview_component;
+use mod_tipcoll\tipcoll;
 
 /**
  * Return if the plugin supports $feature.

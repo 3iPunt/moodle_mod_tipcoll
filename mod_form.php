@@ -74,19 +74,12 @@ class mod_tipcoll_mod_form extends moodleform_mod {
         $mform->addElement('header', 'feedback', get_string('feedback', 'mod_tipcoll'));
         $mform->setExpanded('feedback');
 
-        $mform->addElement('text', 'group_max_length',
-            get_string('group_max_length', 'mod_tipcoll'), array('size' => '4'));
-        $mform->addHelpButton('group_max_length', 'group_max_length', 'mod_tipcoll');
-        $mform->setType('group_max_length', PARAM_INT);
-        $mform->setDefault('group_max_length', 5);
-
         $mform->addElement('date_time_selector', 'feedback_deadline',
             get_string('feedback_deadline', 'mod_tipcoll'));
         $mform->addHelpButton('feedback_deadline', 'feedback_deadline', 'mod_tipcoll');
         $mform->setDefault('feedback_deadline',
             null);
 
-        // Adding the FEEDBACK config.
         $mform->addElement('header', 'activities', get_string('activitiesheading', 'mod_tipcoll'));
         $mform->setExpanded('activities');
 

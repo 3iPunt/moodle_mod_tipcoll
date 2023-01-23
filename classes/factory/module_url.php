@@ -90,7 +90,8 @@ class module_url extends module {
         $options = [
             'section' => $section,
             'visible' => true,
-            'showdescription' => 0
+            'showdescription' => 0,
+            'availability' => json_encode(tipcoll::get_availability_default_cm($moduleinstance->feedback_deadline))
         ];
 
         $instance = $this->generator->create_instance($record, $options);

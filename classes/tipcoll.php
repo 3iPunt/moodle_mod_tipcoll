@@ -34,6 +34,7 @@ use mod_tipcoll\models\feedback;
 use mod_tipcoll\models\feedback_user;
 use moodle_exception;
 use moodle_url;
+use section_info;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
@@ -93,6 +94,15 @@ class tipcoll {
     }
 
     /**
+     * Get Section.
+     *
+     * @return section_info|null
+     */
+    public function get_section(): ?section_info {
+        return $this->cm->get_section_info();
+    }
+
+    /**
      * Get Title.
      *
      * @throws coding_exception
@@ -131,9 +141,7 @@ class tipcoll {
      */
     public function get_activity(int $num) {
         global $DB;
-        $instanccoll = $DB->get_record('tipcoll', ['id' => $this->cm->instance], '*', MUST_EXIST);
-        $cmdata = $instanccoll->cmdata;
-        $cmdata = json_decode($cmdata);
+        $cmdata = $this->get_activities();
         if (isset($cmdata->$num) && isset($cmdata->$num->id)) {
             $item = $cmdata->$num;
             list($course, $cm) = get_course_and_cm_from_cmid($item->id);
@@ -144,6 +152,12 @@ class tipcoll {
             debugging('Activity ' . $num . ': NOT FOUND');
             return null;
         }
+    }
+
+    public function get_activities() {
+        $cmdata = $this->instance->cmdata;
+        $cmdata = json_decode($cmdata);
+        return $cmdata;
     }
 
     /**
@@ -350,7 +364,7 @@ class tipcoll {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected function set_restriction_section() {
+    public function set_restriction_section() {
         global $DB;
         $section = $this->cm->get_section_info();
         $newsection = new stdClass();
@@ -366,6 +380,64 @@ class tipcoll {
         $DB->update_record('course_sections', $newsection);
         course_modinfo::clear_instance_cache($this->get_course());
         rebuild_course_cache($this->get_course()->id);
+    }
+
+    /**
+     * Set restriction activities.
+     *
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function set_restriction_activities() {
+        global $DB;
+        $activities = $this->get_activities();
+        foreach ($activities as $activity) {
+            $record = $DB->get_record('course_modules', ['id' => $activity->id]);
+            if ($record) {
+                $record->availability = json_encode($this->get_availability_cm());
+                $record->timemodified = time();
+                $DB->update_record('course_modules', $record);
+            }
+        }
+        course_modinfo::clear_instance_cache($this->get_course());
+        rebuild_course_cache($this->get_course()->id);
+    }
+
+    /**
+     * Get Availability Course Module.
+     *
+     * @return stdClass
+     */
+    public function get_availability_cm(): stdClass {
+        $date = new stdClass();
+        $date->type = 'date';
+        $date->d = '>=';
+        $date->t = (int)$this->get_deadline_timestamp();
+        $rest[] = $date;
+        $newavaliability = new stdClass();
+        $newavaliability->op = '&';
+        $newavaliability->c = $rest;
+        $newavaliability->showc = [false];
+        return $newavaliability;
+    }
+
+    /**
+     * Get Availability Default Course Module.
+     *
+     * @param int $timestamp
+     * @return stdClass
+     */
+    static public function get_availability_default_cm(int $timestamp): stdClass {
+        $date = new stdClass();
+        $date->type = 'date';
+        $date->d = '>=';
+        $date->t = $timestamp;
+        $rest[] = $date;
+        $newavaliability = new stdClass();
+        $newavaliability->op = '&';
+        $newavaliability->c = $rest;
+        $newavaliability->showc = [false];
+        return $newavaliability;
     }
 
     /**

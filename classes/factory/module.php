@@ -129,6 +129,7 @@ abstract class module {
      */
     public static function add_instance(object $moduleinstance) {
         global $DB;
+
         $numactivities = (int)get_config('tipcoll', 'numactivities');
         $activitiesdata = [];
         $activities = [];
@@ -142,10 +143,18 @@ abstract class module {
         }
 
         // Create Feedback.
-        // TODO. review. intro y title.
         $factfeedback = new module_feedback();
         $feedinstance = $factfeedback->create_questionnaire(
-            $moduleinstance, 'Encuesta', '', $section);
+                $moduleinstance, get_config('feedback', 'pluginname'), '', $section);
+
+        // Create TIP Coll.
+        $moduleinstance->timecreated = time();
+        $moduleinstance->cmids = implode(',', $activities);
+        $moduleinstance->feedbackid = $feedinstance->cmid;
+        $moduleinstance->cmdata = json_encode($activitiesdata);
+        $moduleinstance->showdescription = 1;
+        $moduleinstance->section = $section;
+        $res = $DB->insert_record('tipcoll', $moduleinstance);
 
         // Create Activities.
         for ($i = 1; $i <= $numactivities; $i++) {
@@ -157,13 +166,7 @@ abstract class module {
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
         }
-
-        $moduleinstance->timecreated = time();
-        $moduleinstance->cmids = implode(',', $activities);
-        $moduleinstance->feedbackid = $feedinstance->cmid;
-        $moduleinstance->cmdata = json_encode($activitiesdata);
-        $moduleinstance->showdescription = 1;
-        return $DB->insert_record('tipcoll', $moduleinstance);
+        return $res;
     }
 
     /**
@@ -191,6 +194,8 @@ abstract class module {
             $activities[] = $activity['id'];
         }
 
+        $tipcoll = new tipcoll($moduleinstance->coursemodule);
+
         if (isset($activities[0])) {
             $cmmoveids = [];
             $cmmoveids[] = $moduleinstance->coursemodule;
@@ -201,11 +206,10 @@ abstract class module {
                     'section' => $moduleinstance->section
                 ], 'id', MUST_EXIST);
 
-            $tipcoll = new tipcoll($moduleinstance->coursemodule);
             $feedback = $tipcoll->get_feedback();
 
             update_course::execute(
-                'cm_move', $moduleinstance->course, $cmmoveids, $coursesection->id, $feedback->cmid);
+                'cm_move', $moduleinstance->course, $cmmoveids, $coursesection->id, $feedback->get_cm()->id);
         }
 
         $moduleinstance->timemodified = time();
@@ -213,6 +217,9 @@ abstract class module {
         $moduleinstance->cmids = implode(',', $activities);
         $moduleinstance->cmdata = json_encode($activitiesdata);
         $DB->update_record('tipcoll', $moduleinstance);
+        $tipcoll = new tipcoll($moduleinstance->coursemodule);
+        $tipcoll->set_restriction_section();
+        $tipcoll->set_restriction_activities();
         return true;
     }
 
@@ -225,7 +232,7 @@ abstract class module {
      * @param int $section
      * @return array
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public function create(object $moduleinstance, int $i, int $section): array {
         self::set($moduleinstance, $i);
@@ -240,7 +247,8 @@ abstract class module {
         $options = [
             'section' => $section,
             'visible' => true,
-            'showdescription' => 0
+            'showdescription' => 0,
+            'availability' => json_encode(tipcoll::get_availability_default_cm($moduleinstance->feedback_deadline))
         ];
         $instance = $this->generator->create_instance($record, $options);
 

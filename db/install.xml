@@ -15,7 +15,6 @@
                 <FIELD NAME="cmids" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Course Modules separate by commas"/>
                 <FIELD NAME="cmdata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Course Modules Data JSON Format"/>
                 <FIELD NAME="feedback_deadline" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when feedback deadline."/>
-                <FIELD NAME="group_max_length" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Maximum number of students in a group"/>
                 <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the intro field."/>
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was last modified."/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was added to the course."/>

@@ -32,7 +32,7 @@ if ($ADMIN->fulltree) {
         get_string('generalheadingdesc', 'mod_tipcoll')));
 
     $choicesbehavior = [
-        'label' => get_string('label', 'mod_tipcoll'),
+        //'label' => get_string('label', 'mod_tipcoll'),
         'section' => get_string('section', 'mod_tipcoll')
     ];
 
@@ -40,7 +40,7 @@ if ($ADMIN->fulltree) {
         'tipcoll/behavior',
         new lang_string('behavior', 'mod_tipcoll'),
         new lang_string('behavior_help', 'mod_tipcoll'),
-        'label', $choicesbehavior
+        'section', $choicesbehavior
     );
 
     $settings->add($behavior);

@@ -41,6 +41,29 @@ use stdClass;
  */
 class module_feedback extends module {
 
+    const QUESTIONS = [
+            [
+                    'name' => '¿Cuando podrías participar en el curso?',
+                    'label' => 'WHEN',
+                    'presentation' => 'r>>>>>Mañanas|Tardes|Noches'
+            ],
+            [
+                    'name' => '¿Cual es tu lengua nativa?',
+                    'label' => 'WHICH',
+                    'presentation' => 'r>>>>>Español|Inglés|Francés|Mandarín'
+            ],
+            [
+                    'name' => '¿Que lengua quiero aprender?',
+                    'label' => 'WHAT',
+                    'presentation' => 'r>>>>>Español|Inglés|Francés|Mandarín'
+            ],
+            [
+                    'name' => '¿Qué rol quiero tener?',
+                    'label' => 'WHEN',
+                    'presentation' => 'r>>>>>Aprendiz|Nativo|Ambos'
+            ],
+    ];
+
     /** @var string Mod Name */
     protected $modname = 'feedback';
 
@@ -83,13 +106,41 @@ class module_feedback extends module {
         $options = [
             'section' => $section,
             'visible' => false,
-            'showdescription' => 0
+            'showdescription' => 0,
+            'availability' => json_encode(tipcoll::get_availability_default_cm($moduleinstance->feedback_deadline))
         ];
         $res = $this->generator->create_instance($record, $options);
-
-        // TODO. create questions and responses.
-
+        $this->create_questions($res);
         return $res;
+    }
+
+    /**
+     * Create Questions.
+     *
+     * @param stdClass $feedback
+     * @throws dml_exception
+     */
+    protected function create_questions(stdClass $feedback) {
+        global $DB;
+        $position = 1;
+        foreach (self::QUESTIONS as $quiz) {
+            $record = array(
+                            'feedback' => $feedback->id,
+                            'template' => 0,
+                            'name' => $quiz['name'],
+                            'label' => $quiz['label'],
+                            'presentation' => $quiz['presentation'],
+                            'typ' => 'multichoice',
+                            'hasvalue' => 1,
+                            'position' => $position,
+                            'required' => 0,
+                            'dependitem' => 0,
+                            'dependvalue' => '',
+                            'options' => '',
+                    );
+            $DB->insert_record('feedback_item', $record);
+            $position ++;
+        }
     }
 
 }
