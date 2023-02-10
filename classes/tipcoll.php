@@ -30,6 +30,7 @@ use core_user;
 use course_enrolment_manager;
 use course_modinfo;
 use dml_exception;
+use mod_tipcoll\factory\module;
 use mod_tipcoll\models\feedback;
 use mod_tipcoll\models\feedback_user;
 use moodle_exception;
@@ -136,24 +137,32 @@ class tipcoll {
      *
      * @param int $num
      * @return false|mixed|stdClass
-     * @throws dml_exception
-     * @throws moodle_exception
      */
     public function get_activity(int $num) {
         global $DB;
         $cmdata = $this->get_activities();
         if (isset($cmdata->$num) && isset($cmdata->$num->id)) {
-            $item = $cmdata->$num;
-            list($course, $cm) = get_course_and_cm_from_cmid($item->id);
-            $instance = $DB->get_record($item->type, ['id' => $cm->instance], '*', MUST_EXIST);
-            $instance->cmid = $item->id;
-            return $instance;
+            try {
+                $item = $cmdata->$num;
+                list($course, $cm) = get_course_and_cm_from_cmid($item->id);
+                $instance = $DB->get_record($item->type, ['id' => $cm->instance], '*', MUST_EXIST);
+                $instance->cmid = $item->id;
+                return $instance;
+            } catch (moodle_exception $e) {
+                debugging($e->getMessage());
+                return null;
+            }
         } else {
             debugging('Activity ' . $num . ': NOT FOUND');
             return null;
         }
     }
 
+    /**
+     * Get Activities.
+     *
+     * @return mixed
+     */
     public function get_activities() {
         $cmdata = $this->instance->cmdata;
         $cmdata = json_decode($cmdata);
@@ -288,6 +297,13 @@ class tipcoll {
                     $g->id = $gr->id;
                     $g->name = $gr->name;
                     $g->members = $this->get_members_group($gr->id);
+                    $members = new moodle_url('/group/members.php', ['group' => $gr->id]);
+                    $g->members_url = $members->out(false);
+                    $edit = new moodle_url('/group/group.php?courseid=6&id=60', [
+                            'id' => $gr->id,
+                            'courseid' => $this->get_course()->id]
+                    );
+                    $g->edit_url = $edit->out(false);
                     $items[] = $g;
                 }
             }

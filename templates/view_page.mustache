@@ -108,7 +108,17 @@
 
                     <div class="group">
 
-                        <div class="group-name">{{ name }}</div>
+                        <div class="group-name">
+                            <span class="name">{{ name }}</span>
+                            <span class="actions">
+                                <a target="_blank" href="{{ members_url}}" class="action members" data-toggle="tooltip" data-placement="bottom" title="{{#str}} editgroupsettings, group {{/ str}}">
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                </a>
+                                <a target="_blank"  href="{{ edit_url}}" class="action edit" data-toggle="tooltip" data-placement="bottom" title="{{#str}} adduserstogroup, group {{/ str}}">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </a>
+                            </span>
+                        </div>
 
                         <div class="members">
                             {{# members }}
@@ -139,30 +149,8 @@
                             <span class="title">{{# str }} delete_group, mod_tipcoll {{/str}}</span>
                         </button>
 
-                        <div class="modal fade" id="deleteGroup-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="deleteGroup-{{ id }}" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">{{# str }} delete_group, mod_tipcoll {{/str}}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <h4 class="quiz">{{# str }} delete_group_quiz, mod_tipcoll {{/str}}</h4>
-                                        <h5 class="groupname">{{ name }}</h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                            {{# str }} cancel, mod_tipcoll {{/str}}
-                                        </button>
-                                        <button type="button" class="btn btn-primary" data-action="delete-group" data-groupid="{{ id }}">
-                                            {{# str }} delete_group, mod_tipcoll {{/str}}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {{> mod_tipcoll/deletegroup_modal }}
+
                     </div>
 
                 {{/ groups }}
@@ -174,34 +162,8 @@
                         <span class="title">{{# str }} create_new_group, mod_tipcoll {{/str}}</span>
                     </button>
 
-                    <div class="modal fade" id="createGroup" tabindex="-1" role="dialog" aria-labelledby="createGroupLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">{{# str }} create_new_group, mod_tipcoll {{/str}}</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <form id="form-create-group">
-                                        <div class="form-group">
-                                            <label for="name">{{# str }} create_new_group_name, mod_tipcoll {{/str}}</label>
-                                            <input type="text" class="form-control" id="name" placeholder="{{# str }} create_new_group_name_placeholder, mod_tipcoll {{/str}}">
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                        {{# str }} cancel, mod_tipcoll {{/str}}
-                                    </button>
-                                    <button type="button" class="btn btn-primary" disabled data-action="create-group">
-                                        {{# str }} create_new_group, mod_tipcoll {{/str}}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {{> mod_tipcoll/creategroup_modal }}
+
                 </div>
             </div>
         </div>
@@ -386,6 +348,18 @@
         background-color: black;
         color: white;
         padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .group .group-name a.action {
+        color: white;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .group .group-name a.action:hover {
+        text-decoration: none;
+        color: grey;
     }
 
     div[data-region="mod_tipcoll-view-page"] .view-content .card-body.groups .group .members {
@@ -437,6 +411,7 @@
 
 {{#js}}
     $(document).ready(function () {
+
         require(['mod_tipcoll/groups'], function(groups) {
             groups.initGroups('[data-region="mod_tipcoll-view-page"]', {{ cmid }});
         });
