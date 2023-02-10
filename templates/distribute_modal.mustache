@@ -19,22 +19,133 @@
 
 
 }}
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" data-region="distribution-modal" id="distributionModalCenter" tabindex="-1" role="dialog" aria-labelledby="distributionModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                <h5 class="modal-title" id="distributionModalLongTitle">{{# str }} auto_distribution, mod_tipcoll {{/str}}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                ...
+                <div class="steps">
+                    <div class="step first-step">
+                        <span class="num">1</span>
+                        <div class="description">
+                            {{# str }} step1, mod_tipcoll {{/str}}
+                        </div>
+                    </div>
+                    <div class="step first-step">
+                        <span class="num">2</span>
+                        <div class="description">
+                            {{# str }} step2, mod_tipcoll {{/str}}
+                        </div>
+                        <div class="select-num">
+                            <select class="num-select form-control form-control-sm filter" data-action="num-select">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4" selected>4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="notice">
+                    {{# str }} notice_distribution, mod_tipcoll {{/str}}
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    {{# str }} cancel, mod_tipcoll {{/str}}
+                </button>
+                <button data-action="auto-distribute" type="button" class="btn btn-primary">
+                    {{# str }} distribute_in_groups, mod_tipcoll {{/str}}
+                </button>
             </div>
         </div>
     </div>
 </div>
+<style>
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .steps {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0 25px 20px;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter span.num {
+        background-color: black;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        border-radius: 20px;
+        color: white;
+        align-items: center;
+        justify-content: center;
+        margin: 10px;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter select.num-select {
+        margin: 10px 0;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-header {
+        border: none;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-header h5#distributionModalLongTitle {
+        text-align: center;
+        width: 100%;
+        padding-left: 20px;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-footer {
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-footer button.btn {
+        font-size: 13px;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-footer button.btn.btn-primary {
+        background-color: black;
+        border: none;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-footer button.btn.btn-primary:hover {
+        background-color: #505050;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-footer button.btn.btn-secondary {
+        background-color: transparent;
+        border: none;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .modal-footer button.btn.btn-secondary:hover {
+        background-color: #ccc;
+    }
+    div[data-region="mod_tipcoll-view-page"] #distributionModalCenter .notice {
+        font-size: 12px;
+        font-style: italic;
+        color: #707070;
+        text-align: center;
+    }
+</style>
+{{#js}}
+    $(document).ready(function () {
+
+        require(['mod_tipcoll/distribute'], function(distribute) {
+            distribute.initDistribute('[data-region="distribution-modal"]', {{ cmid }});
+        });
+
+    });
+
+{{/js}}

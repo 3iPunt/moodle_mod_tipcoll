@@ -328,10 +328,10 @@ class tipcoll {
      * Create Group.
      *
      * @param string $name
-     * @return bool
+     * @return int
      * @throws moodle_exception
      */
-    public function create_group(string $name): bool {
+    public function create_group(string $name): int {
         $data = new stdClass();
         $data->name = $name;
         $data->courseid = $this->course->id;
@@ -339,7 +339,7 @@ class tipcoll {
         $data->idnumber = 'tipcoll_' . $this->get_cmid() . '_' . $data->id;
         $res = groups_update_group($data);
         $this->set_restriction_section();
-        return $res;
+        return $data->id;
     }
 
     /**

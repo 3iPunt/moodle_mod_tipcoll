@@ -48,6 +48,7 @@ $functions = [
         'description' => 'Group > Create Group',
         'type' => 'read',
         'ajax' => true,
+        'capabilities' => 'moodle/course:managegroups',
         'loginrequired' => true
     ],
     'mod_tipcoll_group_delete' => [
@@ -56,6 +57,7 @@ $functions = [
         'description' => 'Group > Delete Group',
         'type' => 'read',
         'ajax' => true,
+        'capabilities' => 'moodle/course:managegroups',
         'loginrequired' => true
     ],
     'mod_tipcoll_group_assign' => [
@@ -64,6 +66,16 @@ $functions = [
         'description' => 'Group > Assign group to user',
         'type' => 'read',
         'ajax' => true,
+        'capabilities' => 'moodle/course:managegroups',
+        'loginrequired' => true
+    ],
+    'mod_tipcoll_distribute' => [
+        'classname' => group_external::class,
+        'methodname' => 'distribute',
+        'description' => 'Group > Distribute users filtered in groups',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'moodle/course:managegroups',
         'loginrequired' => true
     ],
 ];
@@ -75,6 +87,7 @@ $services = [
             'mod_tipcoll_group_create',
             'mod_tipcoll_group_delete',
             'mod_tipcoll_group_assign',
+            'mod_tipcoll_distribute',
         ],
         'restrictedusers' => 0,
         'enabled' => 1
