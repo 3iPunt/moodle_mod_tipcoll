@@ -70,10 +70,10 @@ class module_url extends module {
      * @param int $i
      * @param int $section
      * @return array
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public function create(object $moduleinstance, int $i, int $section): array {
-        parent::set($moduleinstance, $i);
+        $this->set($moduleinstance, $i);
 
         $varlink = 'activity_link_' . $i;
         $link = isset($moduleinstance->$varlink) ? $moduleinstance->$varlink : '';
@@ -117,13 +117,18 @@ class module_url extends module {
      */
     public function update(object $moduleinstance, int $cmid, int $i): array {
         global $DB;
-        parent::set($moduleinstance, $i);
+        $this->set($moduleinstance, $i);
 
         $varlink = 'activity_link_' . $i;
         $link = isset($moduleinstance->$varlink) ? $moduleinstance->$varlink : '';
 
         $tipcoll = new tipcoll($cmid);
         $instance = $tipcoll->get_activity($i);
+
+        if (is_null($instance)) {
+            $instance = $this->create($moduleinstance, $i, $moduleinstance->section);
+            return $instance;
+        }
 
         $instance->name = $this->title;
         $instance->externalurl = $link;

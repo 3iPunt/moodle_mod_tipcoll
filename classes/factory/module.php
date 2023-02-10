@@ -178,7 +178,6 @@ abstract class module {
      */
     public static function update_instance(object $moduleinstance) {
         global $DB;
-
         $numactivities = (int)get_config('tipcoll', 'numactivities');
         $activitiesdata = [];
         $activities = [];
@@ -189,10 +188,10 @@ abstract class module {
             /** @var module $factory */
             $factory = new $factname();
             $activity = $factory->update($moduleinstance, $moduleinstance->coursemodule, $i);
+
             $activitiesdata[$i] = $activity;
             $activities[] = $activity['id'];
         }
-
         $tipcoll = new tipcoll($moduleinstance->coursemodule);
 
         if (isset($activities[0])) {
@@ -234,7 +233,7 @@ abstract class module {
      * @throws dml_exception|moodle_exception
      */
     public function create(object $moduleinstance, int $i, int $section): array {
-        self::set($moduleinstance, $i);
+        $this->set($moduleinstance, $i);
         $record = [
             'course' => $this->course,
             'name' => $this->title,
@@ -270,10 +269,15 @@ abstract class module {
      */
     public function update(object $moduleinstance, int $cmid, int $i): array {
         global $DB;
-        self::set($moduleinstance, $i);
+        $this->set($moduleinstance, $i);
 
         $tipcoll = new tipcoll($cmid);
         $instance = $tipcoll->get_activity($i);
+
+        if (is_null($instance)) {
+            $instance = $this->create($moduleinstance, $i, $moduleinstance->section);
+            return $instance;
+        }
 
         $instance->name = $this->title;
         $instance->intro = !empty($this->intro) ? $this->intro : ' ';

@@ -53,6 +53,7 @@ define([
             CREATE_GROUP: '[data-action="create-group"]',
             DELETE_GROUP: '[data-action="delete-group"]',
             ASSIGN_GROUP: '[data-action="assign-group"]',
+            GROUP_NAME: '[data-input="group-name-create"]',
         };
 
         /**
@@ -74,12 +75,16 @@ define([
             this.node = $(region);
             this.cmid = cmid;
             this.node.find(INPUT.GROUP_NAME).on('keyup', this.onGroupNameChange.bind(this));
+            this.node.find(INPUT.GROUP_NAME).on('key', this.onGroupNameChange.bind(this));
             this.node.find(ACTION.CREATE_GROUP).on('click', this.onCreateClick.bind(this));
             this.node.find(ACTION.DELETE_GROUP).on('click', this.onDeleteClick.bind(this));
             this.node.find(ACTION.ASSIGN_GROUP).on('change', this.onAssignClick.bind(this));
         }
 
         Groups.prototype.onGroupNameChange = function (e) {
+            if (e.which === 13 || e.which === 32) {
+                location.reload();
+            }
             let groupname = $(INPUT.GROUP_NAME).val();
             groupname = groupname.trim();
             if (groupname.length > 3) {
