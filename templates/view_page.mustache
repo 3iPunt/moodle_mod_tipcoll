@@ -47,7 +47,7 @@
                 </div>
                 <div class="other-actions">
                     <!-- Button trigger modal -->
-                    <button type="button" class="distribute-action btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+                    <button type="button" class="distribute-action btn btn-primary" data-toggle="modal" data-target="#distributionModalCenter">
                         {{# str }} auto_distribution, mod_tipcoll {{/str}}
                     </button>
 
@@ -74,10 +74,10 @@
 
             </div>
 
-            <div class="card-body participants">
+            <div class="card-body participants" data-region="participants">
 
                 {{# participants }}
-                <div class="participant">
+                <div class="participant" data-userid="{{id}}">
 
                     <div class="userdata">
                         <div class="picture"><img class="" src="{{ picture }}" alt=""></div>

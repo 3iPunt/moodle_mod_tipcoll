@@ -98,6 +98,7 @@ class view_page implements renderable, templatable {
      *
      * @param array $participants
      * @param array $questions
+     * @param bool $unassigned
      * @return mixed
      * @throws coding_exception
      */
@@ -108,9 +109,6 @@ class view_page implements renderable, templatable {
             $qp[$quiz->id] = optional_param('qid-' . $quiz->id, null, PARAM_INT);
         }
         foreach ($participants as $p) {
-            if ($unassigned && $p->ingroup) {
-                break;
-            }
             $filter = true;
             foreach ($p->responses as $resp) {
                 if (!is_null($qp[(int)$resp->qid])) {
@@ -118,6 +116,9 @@ class view_page implements renderable, templatable {
                         $filter = false;
                     }
                 }
+            }
+            if ($unassigned && $p->ingroup) {
+                $filter = false;
             }
             if ($filter) {
                 $newparticipants[] = $p;
