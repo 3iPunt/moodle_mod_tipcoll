@@ -93,3 +93,6 @@ $string['feedbackr4'] = 'Respuestas 4';
 $string['feedbackq4_q'] = '¿Qué rol quiero tener?';
 $string['feedbackq4_r'] = 'Aprendiz,Nativo,Ambos';
 $string['filter_response'] = 'Filtrar...';
+$string['auto_distribution'] = 'Distribución automática';
+$string['assigned_unassigned'] = 'Asignados y no asignados';
+$string['unassigned'] = 'Sin asignar';

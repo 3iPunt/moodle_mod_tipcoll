@@ -41,7 +41,8 @@ define([
          *
          */
         let ACTION = {
-            FILTER: '[data-action="filter-response"]',
+            FILTER_RESPONSE: '[data-action="filter-response"]',
+            FILTER_UNASSIGN: '[data-action="filter-unassign"]',
         };
 
         /**
@@ -53,7 +54,8 @@ define([
         function Filters(region, cmid) {
             this.node = $(region);
             this.cmid = cmid;
-            this.node.find(ACTION.FILTER).on('change', this.onFilterClick.bind(this));
+            this.node.find(ACTION.FILTER_RESPONSE).on('change', this.onFilterClick.bind(this));
+            this.node.find(ACTION.FILTER_UNASSIGN).on('change', this.onFilterUnAssignClick.bind(this));
         }
 
         Filters.prototype.onFilterClick = function (e) {
@@ -64,6 +66,17 @@ define([
                 urlParams.delete('qid-' + qid);
             } else {
                 urlParams.set('qid-' + qid, rid);
+            }
+            window.location.search = urlParams;
+        };
+
+        Filters.prototype.onFilterUnAssignClick = function (e) {
+            let value = $(e.currentTarget).val();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (parseInt(value) === 0) {
+                urlParams.delete('unassigned');
+            } else {
+                urlParams.set('unassigned', '1');
             }
             window.location.search = urlParams;
         };

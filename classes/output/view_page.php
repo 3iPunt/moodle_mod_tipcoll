@@ -77,7 +77,9 @@ class view_page implements renderable, templatable {
         $groups = $tipcoll->get_groups();
         $participants = $tipcoll->get_feedback()->get_participants();
 
-        $participants = $this->filter_participants($participants, $questions);
+        $unassigned = optional_param('unassigned', 0, PARAM_INT);
+        $unassigned = $unassigned === 1;
+        $participants = $this->filter_participants($participants, $questions, $unassigned);
 
         $data = new stdClass();
         $data->cmid = $this->cmid;
@@ -87,6 +89,7 @@ class view_page implements renderable, templatable {
         $data->numgroups = count($groups);
         $data->participants = $participants;
         $data->groups = $groups;
+        $data->unassign_selected = $unassigned;
         return $data;
     }
 
@@ -98,13 +101,16 @@ class view_page implements renderable, templatable {
      * @return mixed
      * @throws coding_exception
      */
-    protected function filter_participants(array $participants, array $questions): array {
+    protected function filter_participants(array $participants, array $questions, bool $unassigned): array {
         $newparticipants = [];
         $qp = [];
         foreach ($questions as $quiz) {
             $qp[$quiz->id] = optional_param('qid-' . $quiz->id, null, PARAM_INT);
         }
         foreach ($participants as $p) {
+            if ($unassigned && $p->ingroup) {
+                break;
+            }
             $filter = true;
             foreach ($p->responses as $resp) {
                 if (!is_null($qp[(int)$resp->qid])) {

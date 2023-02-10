@@ -94,3 +94,6 @@ $string['feedbackr4'] = 'Answers 4';
 $string['feedbackq4_q'] = 'What role do I want to have?';
 $string['feedbackq4_r'] = 'Learner,Native,Both';
 $string['filter_response'] = 'Filter...';
+$string['auto_distribution'] = 'Automatic distribution';
+$string['assigned_unassigned'] = 'Assigned and unassigned';
+$string['unassigned'] = 'Unassigned';

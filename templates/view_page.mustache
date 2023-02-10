@@ -45,6 +45,19 @@
                     </div>
                     {{/ questions }}
                 </div>
+                <div class="other-actions">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="distribute-action btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+                        {{# str }} auto_distribution, mod_tipcoll {{/str}}
+                    </button>
+
+                    {{> mod_tipcoll/distribute_modal }}
+
+                    <select class="unassing-select form-control form-control-sm filter {{# unassign_selected }}infilter{{/ unassign_selected }}" data-action="filter-unassign">
+                        <option value="0">{{# str }} assigned_unassigned, mod_tipcoll {{/str}}</option>
+                        <option value="1" {{# unassign_selected }}selected{{/unassign_selected}}>{{# str }} unassigned, mod_tipcoll {{/str}}</option>
+                    </select>
+                </div>
             </div>
 
             <div class="card-header groups">
@@ -393,6 +406,31 @@
         justify-content: right;
         position: relative;
         top: -13px;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-header .other-actions {
+        display: flex;
+        flex-direction: row;
+        margin-top: 10px;
+        justify-content: flex-end;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-header select.unassing-select {
+        width: inherit;
+        font-size: 12px;
+    }
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-header select.unassing-select.infilter {
+        background-color: #efefef;
+        border: 2px solid black;
+    }
+
+    div[data-region="mod_tipcoll-view-page"] .view-content .card-header button.distribute-action {
+        font-size: 12px;
+        padding: 4px 11px;
+        border-radius: 5px;
+        margin-right: 10px;
+        background-color: black;
+        border: none;
     }
 
 </style>
